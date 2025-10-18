@@ -5,9 +5,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.demo.controllers.product.ProductRequest;
+import com.uade.tpo.demo.controllers.user.UserDTO;
 import com.uade.tpo.demo.entity.Category;
 import com.uade.tpo.demo.entity.Order;
 import com.uade.tpo.demo.entity.Product;
+import com.uade.tpo.demo.entity.User;
 import com.uade.tpo.demo.exceptions.CambioInvalidoException;
 import com.uade.tpo.demo.exceptions.CantidadExedenteException;
 import com.uade.tpo.demo.exceptions.CategoryDuplicateException;
@@ -19,6 +21,8 @@ import com.uade.tpo.demo.service.Order.OrderService;
 import com.uade.tpo.demo.service.Product.ProductService;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,24 +43,27 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<Page<Order>> getOrder(
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
-        if (page == null || size == null)
-            return ResponseEntity.ok(orderService.getOrder(PageRequest.of(0, Integer.MAX_VALUE)));
-        return ResponseEntity.ok(orderService.getOrder(PageRequest.of(page, size)));
+    public ResponseEntity<List<OrderDTO>> getOrder(
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer size) {
+
+        int p = (page == null) ? 0 : page;
+        int s = (size == null) ? Integer.MAX_VALUE : size;
+
+        List<OrderDTO> dtoList = new ArrayList<>();
+        for (Order order : orderService.getOrder(PageRequest.of(p, s))) {
+            OrderDTO dto = orderService.cargarOrderDTO(order);
+            dtoList.add(dto);
+        }
+
+        return ResponseEntity.ok(dtoList);
     }
 
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long orderId) {
         Optional<Order> result = orderService.getOrderById(orderId);
         if (result.isPresent()){
-            Order order = result.get();
-            OrderDTO dto = new OrderDTO();
-            dto.setEmail(order.getUser().getEmail());
-            dto.setIdProducto(order.getProduct().getId());
-            dto.setCantidadProducto(order.getCantidadProducto());
-            dto.setEnvio_a(order.getEnvio_a());
+            OrderDTO dto = orderService.cargarOrderDTO(result.get());
             return ResponseEntity.ok(dto);
         }
 
@@ -66,18 +73,14 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<Object> createOrder(@RequestBody OrderRequest orderRequest)
             throws UserNotExistsException, ProductNotExistsException, CantidadExedenteException {
-        Order result = orderService.createOrder(orderRequest.getEmail(),orderRequest.getIdProducto(),orderRequest.getCantidadProducto(),orderRequest.getEnvio_a());
+        Order result = orderService.createOrder(orderRequest.getIdUser(),orderRequest.getIdProducto(),orderRequest.getCantidadProducto(),orderRequest.getEnvio_a());
         return ResponseEntity.created(URI.create("/order/" + result.getId())).body(result);
     }
 
     @PutMapping("/{orderId}/status")
     public ResponseEntity<OrderDTO> updateStatus(@PathVariable Long orderId,@RequestBody OrderStatusRequest orderStatusRequest) throws OrderNotExistsException, CambioInvalidoException {
         Order updated = orderService.updateStatus(orderId, orderStatusRequest);
-        OrderDTO dto = new OrderDTO();
-        dto.setEmail(updated.getUser().getEmail());
-        dto.setIdProducto(updated.getProduct().getId());
-        dto.setCantidadProducto(updated.getCantidadProducto());
-        dto.setEnvio_a(updated.getEnvio_a());
+        OrderDTO dto = orderService.cargarOrderDTO(updated);
         return ResponseEntity.ok(dto);
     }
 }

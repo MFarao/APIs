@@ -1,5 +1,7 @@
 package com.uade.tpo.demo.controllers.user;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +32,20 @@ public class UserController {
     private UserService userService;
     
     @GetMapping
-    public ResponseEntity<Page<User>> getUsers(
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
-        if (page == null || size == null)
-            return ResponseEntity.ok(userService.getUsers(PageRequest.of(0, Integer.MAX_VALUE)));
-        return ResponseEntity.ok(userService.getUsers(PageRequest.of(page, size)));
+    public ResponseEntity<List<UserDTO>> getUsers(
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer size) {
+
+        int p = (page == null) ? 0 : page;
+        int s = (size == null) ? Integer.MAX_VALUE : size;
+
+        List<UserDTO> dtoList = new ArrayList<>();
+        for (User u : userService.getUsers(PageRequest.of(p, s))) {
+            UserDTO dto = userService.cargarUserDTO(u);
+            dtoList.add(dto);
+        }
+
+        return ResponseEntity.ok(dtoList);
     }
 
     @GetMapping("/{userId}")
@@ -43,11 +53,7 @@ public class UserController {
         Optional<User> result = userService.getUserById(userId);
         if (result.isPresent()){
             User user = result.get();
-            UserDTO dto = new UserDTO();
-            dto.setEmail(user.getEmail());
-            dto.setFirstname(user.getFirstName());
-            dto.setLastname(user.getLastName());
-            dto.setRole(user.getRole());
+            UserDTO dto = userService.cargarUserDTO(user);
             return ResponseEntity.ok(dto);
         }
         return ResponseEntity.noContent().build();
@@ -56,22 +62,14 @@ public class UserController {
     @PutMapping("/{userId}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long userId,@RequestBody UserUpdateRequest userUpdateRequest) throws UserNotExistsException {
         User updated = userService.updateUser(userId, userUpdateRequest);
-        UserDTO dto = new UserDTO();
-        dto.setEmail(updated.getEmail());
-        dto.setFirstname(updated.getFirstName());
-        dto.setLastname(updated.getLastName());
-        dto.setRole(updated.getRole());
+        UserDTO dto = userService.cargarUserDTO(updated);
         return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/{userId}/un_block") // block solo cambia el rol a Bloqueado o lo devuelve a su estado
     public ResponseEntity<UserDTO> un_blockUser(@PathVariable Long userId,@RequestBody UserBlockRequest userBlockRequest) throws UserNotExistsException {
         User updated = userService.un_blockUser(userId, userBlockRequest);
-        UserDTO dto = new UserDTO();
-        dto.setEmail(updated.getEmail());
-        dto.setFirstname(updated.getFirstName());
-        dto.setLastname(updated.getLastName());
-        dto.setRole(updated.getRole());
+        UserDTO dto = userService.cargarUserDTO(updated);
         return ResponseEntity.ok(dto);
     }
 }

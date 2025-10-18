@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import com.uade.tpo.demo.controllers.order.OrderDTO;
 import com.uade.tpo.demo.controllers.order.OrderStatusRequest;
 import com.uade.tpo.demo.controllers.order.OrderUpdateRequest;
 import com.uade.tpo.demo.entity.Order;
@@ -19,7 +20,9 @@ public interface OrderService {
 
     public Optional<Order> getOrderById(Long categoryId);
 
-    public Order createOrder(String email, Long idProducto, int cantidadProducto, String envio_a) throws UserNotExistsException, ProductNotExistsException, CantidadExedenteException;
+    public Order createOrder(Long idUser, Long idProducto, int cantidadProducto, String envio_a) throws UserNotExistsException, ProductNotExistsException, CantidadExedenteException;
 
     public Order updateStatus(Long orderId, OrderStatusRequest orderStatusRequest) throws OrderNotExistsException, CambioInvalidoException;
+
+    public OrderDTO cargarOrderDTO(Order order);
 }

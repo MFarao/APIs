@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.uade.tpo.demo.controllers.order.OrderDTO;
 import com.uade.tpo.demo.controllers.order.OrderStatusRequest;
 import com.uade.tpo.demo.controllers.order.OrderUpdateRequest;
 import com.uade.tpo.demo.controllers.product.ProductController;
@@ -55,8 +56,8 @@ public class OrderServiceImpl implements OrderService{
     }
 
     @Transactional(rollbackFor = Throwable.class)
-    public Order createOrder(String email, Long idProducto, int cantidadProducto, String envio_a) throws UserNotExistsException,ProductNotExistsException, CantidadExedenteException{
-        Optional<User> user = userRepository.findByEmail(email);
+    public Order createOrder(Long idUser, Long idProducto, int cantidadProducto, String envio_a) throws UserNotExistsException,ProductNotExistsException, CantidadExedenteException{
+        Optional<User> user = userRepository.findById(idUser);
         Optional<Product> product = productRepository.findById(idProducto);
 
         if (user.isEmpty()) {
@@ -98,7 +99,6 @@ public class OrderServiceImpl implements OrderService{
         }
         Order orden = order.get();
         OrderStatus estadoOrden = orden.getStatus();
-        Product product = orden.getProduct();
         if (estadoOrden == OrderStatus.PAGO && estadoReq == OrderStatus.PREPARANDO) {
             orden.setStatus(estadoReq);
             valido = true;
@@ -115,5 +115,18 @@ public class OrderServiceImpl implements OrderService{
             return orden;
         }
         throw new CambioInvalidoException();
+    }
+
+    public OrderDTO cargarOrderDTO(Order order){
+        OrderDTO dto = new OrderDTO();
+        dto.setId(order.getId());
+        dto.setIdUser(order.getUser().getId());
+        dto.setIdProducto(order.getProduct().getId());
+        dto.setCantidadProducto(order.getCantidadProducto());
+        dto.setEnvio_a(order.getEnvio_a());
+        dto.setNombreProducto(order.getProduct().getName());
+        dto.setTotal(order.getTotal());
+        dto.setFecha(order.getFecha());
+        return dto;
     }
 }

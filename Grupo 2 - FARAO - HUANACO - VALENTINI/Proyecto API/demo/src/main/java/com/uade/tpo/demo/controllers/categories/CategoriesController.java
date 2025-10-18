@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.uade.tpo.demo.controllers.order.OrderDTO;
 import com.uade.tpo.demo.entity.Category;
 import com.uade.tpo.demo.entity.Order;
 import com.uade.tpo.demo.exceptions.CategoryDuplicateException;
@@ -13,6 +14,7 @@ import com.uade.tpo.demo.exceptions.EliminacionException;
 import com.uade.tpo.demo.service.Category.CategoryService;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,24 +38,27 @@ public class CategoriesController {
     private CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<Page<Category>> getCategories(
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
-        if (page == null || size == null)
-            return ResponseEntity.ok(categoryService.getCategories(PageRequest.of(0, Integer.MAX_VALUE)));
-        return ResponseEntity.ok(categoryService.getCategories(PageRequest.of(page, size)));
-    }
+    public ResponseEntity<List<CategoryDTO>> getCategories(
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer size) {
 
-    @GetMapping("/all")
-    public ResponseEntity<List<Category>> getCategoriesAll() {
-        return ResponseEntity.ok(categoryService.getAllCategoriesWithoutProducts());
+        int p = (page == null) ? 0 : page;
+        int s = (size == null) ? Integer.MAX_VALUE : size;
+
+        List<CategoryDTO> dtoList = new ArrayList<>();
+        for (Category category : categoryService.getCategories(PageRequest.of(p, s))) {
+            CategoryDTO dto = categoryService.cargarCategoryDTO(category);
+            dtoList.add(dto);
+        }
+
+        return ResponseEntity.ok(dtoList);
     }
 
     @GetMapping("/{categoryId}")
-    public ResponseEntity<Category> getCategoryById(@PathVariable Long categoryId) {
+    public ResponseEntity<CategoryDTO> getCategoryById(@PathVariable Long categoryId) {
         Optional<Category> result = categoryService.getCategoryById(categoryId);
         if (result.isPresent())
-            return ResponseEntity.ok(result.get());
+            return ResponseEntity.ok(categoryService.cargarCategoryDTO(result.get()));
 
         return ResponseEntity.noContent().build();
     }
@@ -66,9 +71,9 @@ public class CategoriesController {
     }
 
     @PutMapping("/{categoryId}")
-    public ResponseEntity<Category> updateCategory(@PathVariable Long categoryId, @RequestBody  CategoryRequest categoryRequest) throws CategoryNoExistsException {
+    public ResponseEntity<CategoryDTO> updateCategory(@PathVariable Long categoryId, @RequestBody  CategoryRequest categoryRequest) throws CategoryNoExistsException {
         Category updated = categoryService.updateCategory(categoryId, categoryRequest);
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(categoryService.cargarCategoryDTO(updated));
     }
 
     @DeleteMapping("/{categoryId}")

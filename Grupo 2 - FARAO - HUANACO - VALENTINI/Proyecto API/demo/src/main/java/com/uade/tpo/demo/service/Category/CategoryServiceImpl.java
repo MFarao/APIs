@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.uade.tpo.demo.controllers.categories.CategoryDTO;
 import com.uade.tpo.demo.controllers.categories.CategoryRequest;
 import com.uade.tpo.demo.controllers.order.OrderUpdateRequest;
 import com.uade.tpo.demo.entity.Category;
@@ -31,12 +32,6 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.findAll(pageable);
     }
 
-    public List<Category> getAllCategoriesWithoutProducts() { //Para el GET ALL categories
-        List<Category> categories = categoryRepository.findAll();
-        categories.forEach(c -> c.setProducts(null)); 
-        return categories;
-    }
-
     public Optional<Category> getCategoryById(Long categoryId) {
         return categoryRepository.findById(categoryId);
     }
@@ -50,7 +45,6 @@ public class CategoryServiceImpl implements CategoryService {
         Category c = new Category(description);
         categoryRepository.save(c);
         return c;
-        
     }
 
     @Transactional(rollbackFor = Throwable.class)
@@ -76,5 +70,12 @@ public class CategoryServiceImpl implements CategoryService {
             categoryRepository.delete(c);
         }else{throw new CategoryNoExistsException();}
         return null;
+    }
+
+    public CategoryDTO cargarCategoryDTO(Category category) {
+        CategoryDTO categoryDTO = new CategoryDTO();
+        categoryDTO.setId(category.getId());
+        categoryDTO.setDescription(category.getDescription());
+        return categoryDTO;
     }
 }

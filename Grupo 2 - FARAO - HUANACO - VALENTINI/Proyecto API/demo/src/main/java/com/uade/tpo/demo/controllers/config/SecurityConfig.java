@@ -31,7 +31,6 @@ public class SecurityConfig {
                 http
                                 .csrf(AbstractHttpConfigurer::disable)
                                 .authorizeHttpRequests(req -> req
-                                .requestMatchers(HttpMethod.GET,"/categories","/categories/**").hasAnyAuthority(Role.USER.name(),Role.ADMIN.name()) // Los usuarios no bloqueados podran ver las categorias
                                 .requestMatchers(HttpMethod.POST, "/categories").hasAuthority(Role.ADMIN.name())// SOLO LOS ADMINS CREARAN LAS CATEGORIAS
                                 .requestMatchers(HttpMethod.DELETE, "/categories/**").hasAuthority(Role.ADMIN.name())// SOLO LOS ADMINS ELIMINARAN LAS CATEGORIAS
                                 .requestMatchers(HttpMethod.PUT, "/categories/**").hasAuthority(Role.ADMIN.name())// SOLO LOS ADMINS MODIFCARAN LAS CATEGORIAS
@@ -39,8 +38,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET,"/discounts", "/discounts/**").hasAuthority(Role.ADMIN.name())// SOLO LOS ADMINS PODRAN VER LOS DESCUENTOS
                                 .requestMatchers(HttpMethod.POST,"/discounts").hasAuthority(Role.ADMIN.name())// SOLO LOS ADMINS PODRAN CREAR DESCUENTOS
                                 .requestMatchers(HttpMethod.PUT,"/discounts/**").hasAuthority(Role.ADMIN.name())// SOLO LOS ADMINS PODRAN MODIFICAR DESCUENTOS
- 
-                                .requestMatchers(HttpMethod.GET,"/products","/products/**").hasAnyAuthority(Role.USER.name(),Role.ADMIN.name())// LOS GETS GENERALES DEL PRODUCTO SE PUEDEN HACER POR TODOS LOS USUARIOS NO BLOQUEADOS        
+
                                 .requestMatchers(HttpMethod.POST, "/products").hasAuthority(Role.ADMIN.name()) // SOLO LOS ADMINS CREAN PRODUCTOS
                                 .requestMatchers(HttpMethod.PUT,"/products/**").hasAuthority(Role.ADMIN.name()) // SOLO LOS ADMIN PUEDEN MODIFICAR LOS PRODUCTOS
                                

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.uade.tpo.demo.controllers.order.OrderUpdateRequest;
+import com.uade.tpo.demo.controllers.product.ProductDTO;
 import com.uade.tpo.demo.controllers.product.ProductImageRequest;
 import com.uade.tpo.demo.controllers.product.ProductRequest;
 import com.uade.tpo.demo.controllers.product.ProductUpdateRequest;
@@ -95,12 +96,12 @@ public class ProductServiceImpl implements ProductService{
 
     @Transactional(rollbackFor = Throwable.class)
     public Product createProduct(ProductRequest productRequest) throws CategoryNoExistsException {
-        if (productRequest.getDescripcionCategory() != null) { // chequeamos si se creo con categoria
-            List<Category> category = categoryRepository.findByDescription(productRequest.getDescripcionCategory());
+        if (productRequest.getCategoryId() != null) { // chequeamos si se creo con categoria
+            Optional<Category> category = categoryRepository.findById(productRequest.getCategoryId());
             if (category.isEmpty()) {
                 throw new CategoryNoExistsException(); // si no existe la categoria q no deje crear el producto
             }
-            Product p = new Product(productRequest.getName(),productRequest.getDescription(),productRequest.getImageUrls(),productRequest.getPrice(),productRequest.getStock(),category.get(0));
+            Product p = new Product(productRequest.getName(),productRequest.getDescription(),productRequest.getImageUrls(),productRequest.getPrice(),productRequest.getStock(),category.get());
             productRepository.save(p);
             return p;
         }else{
@@ -200,5 +201,40 @@ public class ProductServiceImpl implements ProductService{
             productRepository.save(product);
             return product;
         }throw new ProductNotExistsException();
+    }
+
+    public boolean tieneDescuento(Long productId){
+        Optional<Product> product = productRepository.findById(productId);
+        if (product.isPresent()) {
+            Product p = product.get();
+            if (p.getPrecioDescuento() != null // si tiene descuento y esta dentro de las fechas validas
+             &&  (LocalDate.now().isAfter(p.getDiscount().getStartDate()) || LocalDate.now().isEqual(p.getDiscount().getStartDate())) //hoy es despues de la fecha de inicio o igual
+             &&  (LocalDate.now().isBefore(p.getDiscount().getEndDate())) || LocalDate.now().isEqual(p.getDiscount().getEndDate()))  //hoy es antes de la fecha final o igual
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public ProductDTO cargarProductDTO(Product product){
+        ProductDTO dto = new ProductDTO();
+        dto.setId(product.getId());
+        dto.setCategoryId(product.getCategory().getId());
+        dto.setName(product.getName());
+        dto.setDescription(product.getDescription());
+        dto.setPrice(product.getPrecio());
+        dto.setStock(product.getStock());
+        dto.setImageUrls(product.getImageUrls());
+        dto.setActive(product.isActivo());
+        if (tieneDescuento(product.getId())) {
+            dto.setPriceDescuento(product.getPrecioDescuento());
+            dto.setDiscountEndDate(product.getDiscount().getEndDate());
+        }
+        else{
+            dto.setPriceDescuento(null);
+            dto.setDiscountEndDate(null);
+        }
+        return dto;
     }
 }

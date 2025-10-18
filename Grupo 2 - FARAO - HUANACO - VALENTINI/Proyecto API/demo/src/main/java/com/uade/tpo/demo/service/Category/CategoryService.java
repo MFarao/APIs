@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import com.uade.tpo.demo.controllers.categories.CategoryDTO;
 import com.uade.tpo.demo.controllers.categories.CategoryRequest;
 
 import com.uade.tpo.demo.entity.Category;
@@ -21,8 +22,6 @@ import com.uade.tpo.demo.exceptions.OrderNotExistsException;
 public interface CategoryService {
     public Page<Category> getCategories(PageRequest pageRequest);
 
-    public List<Category> getAllCategoriesWithoutProducts();
-
     public Optional<Category> getCategoryById(Long categoryId);
 
     public Category createCategory(String description) throws CategoryDuplicateException;
@@ -30,4 +29,6 @@ public interface CategoryService {
     public Category updateCategory(Long categoryID, CategoryRequest categoryUpdateRequest) throws CategoryNoExistsException;
 
     public Void deleteCategory(Long categoryId) throws CategoryNoExistsException, CategoryNoEliminarException, EliminacionException;
+
+    public CategoryDTO cargarCategoryDTO(Category category);
 }

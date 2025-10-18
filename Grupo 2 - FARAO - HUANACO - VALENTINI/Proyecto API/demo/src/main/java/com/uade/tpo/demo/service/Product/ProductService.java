@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.uade.tpo.demo.controllers.order.OrderUpdateRequest;
+import com.uade.tpo.demo.controllers.product.ProductDTO;
 import com.uade.tpo.demo.controllers.product.ProductImageRequest;
 import com.uade.tpo.demo.controllers.product.ProductRequest;
 import com.uade.tpo.demo.controllers.product.ProductUpdateRequest;
@@ -41,4 +42,7 @@ public interface ProductService {
 
     public Product in_activarProductoById(Long productId) throws ProductNotExistsException;
     
+    public boolean tieneDescuento(Long productId);
+
+    public ProductDTO cargarProductDTO(Product product);
 } 

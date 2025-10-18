@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.uade.tpo.demo.controllers.discount.DiscountDTO;
 import com.uade.tpo.demo.controllers.discount.DiscountRequest;
 import com.uade.tpo.demo.controllers.discount.DiscountUpdateRequest;
 import com.uade.tpo.demo.entity.Category;
@@ -35,4 +36,6 @@ public interface DiscountService {
     public Discount updateDiscounts(Long discountId, DiscountUpdateRequest discountUpdateRequest) throws CategoryNoExistsException, DiscountNotExistsException, ProductNotExistsException;
 
     public Discount deactivateDiscount(Long discountId) throws CambioInvalidoException;
+
+    public DiscountDTO cargarDiscountDTO(Discount discount);
 }

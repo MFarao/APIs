@@ -1,6 +1,7 @@
 package com.uade.tpo.demo.controllers.discount;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.uade.tpo.demo.controllers.categories.CategoryDTO;
 import com.uade.tpo.demo.controllers.categories.CategoryRequest;
 import com.uade.tpo.demo.entity.Category;
 import com.uade.tpo.demo.entity.Discount;
@@ -34,20 +36,29 @@ public class DiscountController {
 
     @Autowired
     private DiscountService discountService;
+
     @GetMapping
-    public ResponseEntity<Page<Discount>> getDiscounts(
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
-        if (page == null || size == null)
-            return ResponseEntity.ok(discountService.getDiscounts(PageRequest.of(0, Integer.MAX_VALUE)));
-        return ResponseEntity.ok(discountService.getDiscounts(PageRequest.of(page, size)));
+    public ResponseEntity<List<DiscountDTO>> getDiscounts(
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer size) {
+
+        int p = (page == null) ? 0 : page;
+        int s = (size == null) ? Integer.MAX_VALUE : size;
+
+        List<DiscountDTO> dtoList = new ArrayList<>();
+        for (Discount discount : discountService.getDiscounts(PageRequest.of(p, s))) {
+            DiscountDTO dto = discountService.cargarDiscountDTO(discount);
+            dtoList.add(dto);
+        }
+
+        return ResponseEntity.ok(dtoList);
     }
 
     @GetMapping("/{discountId}")
-    public ResponseEntity<Discount> getDiscountById(@PathVariable Long discountId) {
+    public ResponseEntity<DiscountDTO> getDiscountById(@PathVariable Long discountId) {
         Optional<Discount> result = discountService.getDiscountById(discountId);
         if (result.isPresent())
-            return ResponseEntity.ok(result.get());
+            return ResponseEntity.ok(discountService.cargarDiscountDTO(result.get()));
 
         return ResponseEntity.noContent().build();
     }
@@ -60,14 +71,15 @@ public class DiscountController {
     }
 
     @PutMapping("/{discountId}")
-    public ResponseEntity<Discount> updateDiscounts(@PathVariable Long discountId, @RequestBody DiscountUpdateRequest discountUpdateRequest) throws CategoryNoExistsException, DiscountNotExistsException, ProductNotExistsException {
+    public ResponseEntity<DiscountDTO> updateDiscounts(@PathVariable Long discountId, @RequestBody DiscountUpdateRequest discountUpdateRequest) throws CategoryNoExistsException, DiscountNotExistsException, ProductNotExistsException {
         Discount updated = discountService.updateDiscounts(discountId, discountUpdateRequest);
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(discountService.cargarDiscountDTO(updated));
+
     }
 
     @PutMapping("/{discountId}/deactivate")
-    public ResponseEntity<Discount> deactivateDiscount(@PathVariable Long discountId) throws CambioInvalidoException{
+    public ResponseEntity<DiscountDTO> deactivateDiscount(@PathVariable Long discountId) throws CambioInvalidoException{
         Discount updated = discountService.deactivateDiscount(discountId);
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(discountService.cargarDiscountDTO(updated));
     }
 }

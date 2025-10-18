@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.uade.tpo.demo.controllers.user.UserBlockRequest;
+import com.uade.tpo.demo.controllers.user.UserDTO;
 import com.uade.tpo.demo.controllers.user.UserUpdateRequest;
 import com.uade.tpo.demo.entity.Product;
 import com.uade.tpo.demo.entity.User;
@@ -27,4 +28,5 @@ public interface UserService {
 
     public User un_blockUser(Long userId,@RequestBody UserBlockRequest userBlockRequest) throws UserNotExistsException;
     
+    public UserDTO cargarUserDTO(User user);
 }

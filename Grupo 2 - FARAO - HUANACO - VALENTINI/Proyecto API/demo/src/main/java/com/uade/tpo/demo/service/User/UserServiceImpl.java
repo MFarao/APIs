@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.uade.tpo.demo.controllers.user.UserBlockRequest;
+import com.uade.tpo.demo.controllers.user.UserDTO;
 import com.uade.tpo.demo.controllers.user.UserUpdateRequest;
 import com.uade.tpo.demo.entity.Product;
 import com.uade.tpo.demo.entity.Role;
@@ -77,4 +78,13 @@ public class UserServiceImpl implements UserService{
         }throw new UserNotExistsException();
     }
     
+    public UserDTO cargarUserDTO(User user){
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setFirstname(user.getFirstName());
+        dto.setLastname(user.getLastName());
+        dto.setRole(user.getRole());
+        return dto;
+    }
 }

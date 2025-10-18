@@ -18,6 +18,7 @@ import com.uade.tpo.demo.exceptions.DiscountErrorCreation;
 import com.uade.tpo.demo.exceptions.DiscountNotExistsException;
 import com.uade.tpo.demo.exceptions.ProductNotExistsException;
 import com.uade.tpo.demo.exceptions.UserNotExistsException;
+import com.uade.tpo.demo.controllers.discount.DiscountDTO;
 import com.uade.tpo.demo.controllers.discount.DiscountRequest;
 import com.uade.tpo.demo.controllers.discount.DiscountUpdateRequest;
 import com.uade.tpo.demo.entity.Category;
@@ -138,5 +139,13 @@ public class DiscountServiceImpl implements DiscountService {
         dis.setActive(false);
         discountRepo.save(dis);
         return dis;
+    }
+
+    public DiscountDTO cargarDiscountDTO(Discount discount) {
+        DiscountDTO discountDTO = new DiscountDTO();
+        discountDTO.setPercentage(discount.getPercentage() * 100);
+        discountDTO.setStartDate(discount.getStartDate());
+        discountDTO.setEndDate(discount.getEndDate());
+        return discountDTO;
     }
 }
