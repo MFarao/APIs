@@ -207,9 +207,9 @@ public class ProductServiceImpl implements ProductService{
         Optional<Product> product = productRepository.findById(productId);
         if (product.isPresent()) {
             Product p = product.get();
-            if (p.getPrecioDescuento() != null // si tiene descuento y esta dentro de las fechas validas
+            if (p.getPrecioDescuento() != null && p.getDiscount() != null // si tiene descuento y esta dentro de las fechas validas
              &&  (LocalDate.now().isAfter(p.getDiscount().getStartDate()) || LocalDate.now().isEqual(p.getDiscount().getStartDate())) //hoy es despues de la fecha de inicio o igual
-             &&  (LocalDate.now().isBefore(p.getDiscount().getEndDate())) || LocalDate.now().isEqual(p.getDiscount().getEndDate()))  //hoy es antes de la fecha final o igual
+             &&  (LocalDate.now().isBefore(p.getDiscount().getEndDate()) || LocalDate.now().isEqual(p.getDiscount().getEndDate())) )  //hoy es antes de la fecha final o igual
             {
                 return true;
             }
@@ -217,10 +217,16 @@ public class ProductServiceImpl implements ProductService{
         return false;
     }
 
+    
+
     public ProductDTO cargarProductDTO(Product product){
         ProductDTO dto = new ProductDTO();
         dto.setId(product.getId());
-        dto.setCategoryId(product.getCategory().getId());
+        if(product.getCategory() != null){
+            dto.setCategoryId(product.getCategory().getId());
+        }else{
+             dto.setCategoryId(null);
+        }
         dto.setName(product.getName());
         dto.setDescription(product.getDescription());
         dto.setPrice(product.getPrecio());

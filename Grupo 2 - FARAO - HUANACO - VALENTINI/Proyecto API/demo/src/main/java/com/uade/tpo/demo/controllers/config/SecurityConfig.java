@@ -31,7 +31,6 @@ public class SecurityConfig {
                 http
                                 .csrf(AbstractHttpConfigurer::disable)
                                 .authorizeHttpRequests(req -> req
-                                .requestMatchers(HttpMethod.GET, "/categories", "/categories/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/categories").hasAuthority(Role.ADMIN.name())// SOLO LOS ADMINS CREARAN LAS CATEGORIAS
                                 .requestMatchers(HttpMethod.DELETE, "/categories/**").hasAuthority(Role.ADMIN.name())// SOLO LOS ADMINS ELIMINARAN LAS CATEGORIAS
                                 .requestMatchers(HttpMethod.PUT, "/categories/**").hasAuthority(Role.ADMIN.name())// SOLO LOS ADMINS MODIFCARAN LAS CATEGORIAS
@@ -39,8 +38,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET,"/discounts", "/discounts/**").hasAuthority(Role.ADMIN.name())// SOLO LOS ADMINS PODRAN VER LOS DESCUENTOS
                                 .requestMatchers(HttpMethod.POST,"/discounts").hasAuthority(Role.ADMIN.name())// SOLO LOS ADMINS PODRAN CREAR DESCUENTOS
                                 .requestMatchers(HttpMethod.PUT,"/discounts/**").hasAuthority(Role.ADMIN.name())// SOLO LOS ADMINS PODRAN MODIFICAR DESCUENTOS
-
-                                .requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll()
+                                
                                 .requestMatchers(HttpMethod.POST, "/products").hasAuthority(Role.ADMIN.name()) // SOLO LOS ADMINS CREAN PRODUCTOS
                                 .requestMatchers(HttpMethod.PUT,"/products/**").hasAuthority(Role.ADMIN.name()) // SOLO LOS ADMIN PUEDEN MODIFICAR LOS PRODUCTOS
                                
@@ -51,6 +49,9 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/order/**").hasAnyAuthority(Role.USER.name(),Role.ADMIN.name()) // LAS ORDENES LOS PUEDEN VER TODOS
                                 .requestMatchers(HttpMethod.POST, "/order").hasAnyAuthority(Role.USER.name(),Role.ADMIN.name()) // LAS ORDENES LOS PUEDEN VER TODOS
                                 .requestMatchers(HttpMethod.PUT, "/order/**").hasAuthority(Role.ADMIN.name()) // LAS ORDENES PUEDEN SER PASADAS DE ESTADO UNICAMENTE POR ADMIN
+                                
+                                .requestMatchers(HttpMethod.GET, "/categories", "/categories/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll()
                                 .requestMatchers("/api/v1/auth/**").permitAll()                
                                                 .anyRequest()
                                                 .authenticated())
