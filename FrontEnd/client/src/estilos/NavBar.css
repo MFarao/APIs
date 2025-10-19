@@ -1,0 +1,68 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background-color: transparent;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navbar-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.navbar-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #000;
+}
+
+.dark .navbar-title {
+  color: #fff;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.nav-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #000;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.dark .nav-link {
+  color: #fff;
+}
+
+.nav-link:hover {
+  color: #6c2bd9; /* tono violeta similar al del logo */
+}
+
+.nav-link.active {
+  color: #6c2bd9;
+  font-weight: 700;
+}
+
+.back-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.back-icon:hover {
+  transform: translateX(-3px);
+}
