@@ -1,11 +1,10 @@
-import "./App.css";
-import CardList from "./components/CardList";
-import ExampleComponent from "./components/ExampleComponent";
+import "./estilos/App.css";
+import Navbar from "./components/NavBar";
 
 function App() {
   return (
     <>
-      <CardList />
+      <Navbar />
     </>
   );
 }

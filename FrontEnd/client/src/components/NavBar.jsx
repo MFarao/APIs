@@ -1,17 +1,20 @@
 import React from "react";
-import { Link, useLocation, useNavegate } from "react-router-dom";
-import "./Navbar.css";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import "../estilos/Navbar.css";
+import flechaIzq from "../assets/flechaIzq.png";
+import logo from "../assets/logo.png";
+
 
 const Navbar = () => {
   const location = useLocation();
-  const navegate = useNavegate();
+  const navigate = useNavigate();
 
   return (
     <nav className="navbar">
       <div className="navbar-links">
         <div className="navbar-left">
-            <img src="../assets/flechaIzq.png" alt = "volver" className = "back-arrow" onClick={() => navegate(-1)} /> a chequear
-            <img src="../assets/logo.png" alt="GeekHaven Logo" className="navbar-logo" />
+            <img src={flechaIzq} alt = "volver" className = "back-arrow" onClick={() => navigate(-1)} /> a chequear
+            <img src={logo} alt="GeekHaven Logo" className="navbar-logo" />
             <span className="navbar-title">GeekHaven</span>
         </div> 
         <Link // con las backticks vemos si sobresaltar o no el texto dependiendo de donde esta parado
