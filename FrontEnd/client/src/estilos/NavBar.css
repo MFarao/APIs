@@ -1,15 +1,23 @@
 .navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 2rem;
-  background-color: transparent;
+  padding: 0.8rem 0.5rem;
+  background-color: #ffffffd9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
 }
+
+
 
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.1rem;
 }
 
 .navbar-logo {
@@ -31,7 +39,7 @@
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 1.2rem;
 }
 
 .nav-link {
@@ -48,11 +56,13 @@
 
 .nav-link:hover {
   color: #6c2bd9; /* tono violeta similar al del logo */
+  border-bottom: 2px solid #6c2bd9;
 }
 
 .nav-link.active {
   color: #6c2bd9;
   font-weight: 700;
+  border-bottom: 2px solid #6c2bd9;
 }
 
 .back-icon {
@@ -66,3 +76,71 @@
 .back-icon:hover {
   transform: translateX(-3px);
 }
+
+.navbar-search {
+  flex-shrink: 0;
+}
+
+.search-input {
+  color: #1e1e2f;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.875rem;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  width: 20rem;
+  transition: border-color 0.3s ease;
+  background-color: #ffffffd9;
+}
+
+.search-input:focus {
+  outline: none;
+  color: #1e1e2f;
+  border-color: #6c2bd9;
+}
+
+
+.navbar-auth {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding-right: 1rem;
+}
+
+.auth-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6c2bd9;
+  text-decoration: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.auth-link:hover {
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background-color: #6c2bd9;
+}
+
+.auth-link.active {
+  color: #fff;
+  background-color: #6c2bd9;
+}
+
+.auth-link.registro {
+  border: 1px solid #6c2bd9;
+  background-color: transparent;
+}
+
+.auth-link.registro:hover {
+  background-color: #6c2bd9;
+  color: #fff;
+}
+
+.auth-link.registro.active {
+  color: #fff;
+  background-color: #6c2bd9;
+}
+
+
+
