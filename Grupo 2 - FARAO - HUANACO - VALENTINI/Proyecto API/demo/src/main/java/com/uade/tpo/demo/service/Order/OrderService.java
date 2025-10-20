@@ -1,5 +1,6 @@
 package com.uade.tpo.demo.service.Order;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -25,4 +26,6 @@ public interface OrderService {
     public Order updateStatus(Long orderId, OrderStatusRequest orderStatusRequest) throws OrderNotExistsException, CambioInvalidoException;
 
     public OrderDTO cargarOrderDTO(Order order);
+
+    public List<OrderDTO> getOrdersByUserId(Long userId) throws UserNotExistsException;
 }

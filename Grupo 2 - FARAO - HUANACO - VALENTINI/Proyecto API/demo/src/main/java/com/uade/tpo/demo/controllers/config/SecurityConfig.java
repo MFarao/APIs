@@ -29,6 +29,8 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
+                                .cors() // 👈 habilita CORS
+                                .and()
                                 .csrf(AbstractHttpConfigurer::disable)
                                 .authorizeHttpRequests(req -> req
                                 .requestMatchers(HttpMethod.POST, "/categories").hasAuthority(Role.ADMIN.name())// SOLO LOS ADMINS CREARAN LAS CATEGORIAS
@@ -42,6 +44,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/products").hasAuthority(Role.ADMIN.name()) // SOLO LOS ADMINS CREAN PRODUCTOS
                                 .requestMatchers(HttpMethod.PUT,"/products/**").hasAuthority(Role.ADMIN.name()) // SOLO LOS ADMIN PUEDEN MODIFICAR LOS PRODUCTOS
                                
+                                .requestMatchers(HttpMethod.GET, "/users/me").authenticated() // CUALQUIER USUARIO LOGUEADO PUEDE VER SU PROPIO PERFIL     
                                 .requestMatchers(HttpMethod.GET, "/users/**").hasAuthority(Role.ADMIN.name()) //SOLO LOS ADMINS MANEJAN USUARIOS
                                 .requestMatchers(HttpMethod.PUT, "/users/**").hasAuthority(Role.ADMIN.name()) //SOLO LOS ADMINS MANEJAN USUARIOS
        
@@ -49,10 +52,10 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/order/**").hasAnyAuthority(Role.USER.name(),Role.ADMIN.name()) // LAS ORDENES LOS PUEDEN VER TODOS
                                 .requestMatchers(HttpMethod.POST, "/order").hasAnyAuthority(Role.USER.name(),Role.ADMIN.name()) // LAS ORDENES LOS PUEDEN VER TODOS
                                 .requestMatchers(HttpMethod.PUT, "/order/**").hasAuthority(Role.ADMIN.name()) // LAS ORDENES PUEDEN SER PASADAS DE ESTADO UNICAMENTE POR ADMIN
-                                
+
                                 .requestMatchers(HttpMethod.GET, "/categories", "/categories/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll()
-                                .requestMatchers("/api/v1/auth/**").permitAll()                
+                                .requestMatchers("/api/v1/auth/**").permitAll()           
                                                 .anyRequest()
                                                 .authenticated())
                                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))

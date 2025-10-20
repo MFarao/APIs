@@ -224,8 +224,10 @@ public class ProductServiceImpl implements ProductService{
         dto.setId(product.getId());
         if(product.getCategory() != null){
             dto.setCategoryId(product.getCategory().getId());
+            dto.setCategoryName(product.getCategory().getDescription());
         }else{
              dto.setCategoryId(null);
+             dto.setCategoryName(null);
         }
         dto.setName(product.getName());
         dto.setDescription(product.getDescription());

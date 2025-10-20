@@ -71,7 +71,9 @@ public class DiscountServiceImpl implements DiscountService {
                     if (category.isPresent()){
                         Category cat = category.get();
                         for (Product product : productRepo.findAllByCategoryId(categoryId)) { // para todos los productos de una categoria rehacemos el precio
-                            product.setPrecioDescuento(product.getPrecio() * (1 - dis.getPercentage()));
+                            double precioDescuento = product.getPrecio() * (1 - dis.getPercentage());
+                            precioDescuento = Math.round(precioDescuento * 100.0) / 100.0;
+                            product.setPrecioDescuento(precioDescuento);
                             product.setDiscount(dis);
                             productRepo.save(product);
                         }
@@ -94,7 +96,9 @@ public class DiscountServiceImpl implements DiscountService {
                     if (product.isPresent()){
                         Product pro = product.get();
 
-                        pro.setPrecioDescuento(pro.getPrecio() * (1 - dis.getPercentage()));
+                        double precioDescuento = pro.getPrecio() * (1 - dis.getPercentage());
+                        precioDescuento = Math.round(precioDescuento * 100.0) / 100.0;
+                        pro.setPrecioDescuento(precioDescuento);
                         pro.setDiscount(dis);
                         productRepo.save(pro);
 

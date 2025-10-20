@@ -1,0 +1,52 @@
+.orders-container {
+  color: black;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* centra verticalmente */
+  height: 80vh; /* ajustá según altura de tu navbar */
+  width: 100vw;
+  padding: 2rem;
+  box-sizing: border-box;
+  background-color: #f9f9f9;
+  padding-right: 32px;
+}
+
+.ordenes-h2{
+    color: black;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.ordenes-tabla {
+  color: black;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1200px; /* opcional: para limitar en pantallas grandes */
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding-right: 32px;
+}
+
+
+.ordenes-tabla th,
+.ordenes-tabla td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  font-size: 0.95rem;
+  white-space: nowrap; /* evita que el texto se corte en columnas angostas */
+}
+
+.ordenes-tabla th {
+    color: #fff;
+  background-color: #6c2bd9;
+  font-weight: 600;
+}
+
+.error {
+  color: red;
+  margin-bottom: 1rem;
+}

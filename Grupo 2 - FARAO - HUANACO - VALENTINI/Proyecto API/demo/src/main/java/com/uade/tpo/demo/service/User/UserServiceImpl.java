@@ -39,6 +39,11 @@ public class UserServiceImpl implements UserService{
         return userRepository.findById(userId);
     }
 
+    @Override
+    public Optional<User> getUserByEmail(String mail) {
+        return userRepository.findByEmail(mail);
+    }
+
     @Transactional(rollbackFor = Throwable.class) 
     public User updateUser(Long userId, UserUpdateRequest userUpdateRequest) throws UserNotExistsException{
         Optional<User> users = userRepository.findById(userId);

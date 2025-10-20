@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,6 +49,19 @@ public class UserController {
 
         return ResponseEntity.ok(dtoList);
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDTO> getCurrentUser(Authentication authentication) {
+        String email = authentication.getName();
+        Optional<User> result = userService.getUserByEmail(email);
+        if (result.isPresent()){
+            User user = result.get();
+            UserDTO dto = userService.cargarUserDTO(user);
+            return ResponseEntity.ok(dto);
+        }
+        return ResponseEntity.noContent().build();
+    }
+
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long userId) {

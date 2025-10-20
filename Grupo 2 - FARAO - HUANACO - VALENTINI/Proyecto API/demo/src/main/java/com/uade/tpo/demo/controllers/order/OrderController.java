@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.uade.tpo.demo.controllers.order.OrderDTO;
 import com.uade.tpo.demo.controllers.product.ProductRequest;
 import com.uade.tpo.demo.controllers.user.UserDTO;
 import com.uade.tpo.demo.entity.Category;
@@ -69,6 +70,12 @@ public class OrderController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<OrderDTO>> getOrdersByUserId(@PathVariable Long userId) throws UserNotExistsException {
+        return ResponseEntity.ok(orderService.getOrdersByUserId(userId));
+    }
+    
 
     @PostMapping
     public ResponseEntity<Object> createOrder(@RequestBody OrderRequest orderRequest)

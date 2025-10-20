@@ -129,4 +129,18 @@ public class OrderServiceImpl implements OrderService{
         dto.setFecha(order.getFecha());
         return dto;
     }
+
+    public List<OrderDTO> getOrdersByUserId(Long userId) throws UserNotExistsException {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new UserNotExistsException();
+        }
+        List<Order> orders = orderRepository.findAllByUserId(userId);
+        List<OrderDTO> dtoList = new java.util.ArrayList<>();
+        for (Order order : orders) {
+            OrderDTO dto = cargarOrderDTO(order);
+            dtoList.add(dto);
+        }
+        return dtoList;
+    }
 }

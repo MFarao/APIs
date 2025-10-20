@@ -24,6 +24,8 @@ public interface UserService {
 
     public Optional<User> getUserById(Long userId);
 
+    public Optional<User> getUserByEmail(String mail);
+
     public User updateUser(Long userId,@RequestBody UserUpdateRequest userUpdateRequest) throws UserNotExistsException;
 
     public User un_blockUser(Long userId,@RequestBody UserBlockRequest userBlockRequest) throws UserNotExistsException;

@@ -14,4 +14,6 @@ import com.uade.tpo.demo.entity.Order;
 
 @Repository
 public interface OrderRepository  extends JpaRepository<Order, Long>{
+    @Query(value = "select o from Order o where o.user.id = ?1 order by o.id DESC")
+    List<Order> findAllByUserId(Long userId);
 }

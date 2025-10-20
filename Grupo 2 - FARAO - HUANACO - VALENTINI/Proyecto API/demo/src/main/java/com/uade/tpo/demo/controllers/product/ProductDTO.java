@@ -13,6 +13,7 @@ public class ProductDTO {
     private Double priceDescuento;
     private LocalDate discountEndDate;
     private Long categoryId;
+    private String categoryName;
     private List<String> imageUrls; // URLs de las imágenes
     private Integer stock;
     private Boolean active;

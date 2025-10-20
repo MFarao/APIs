@@ -12,8 +12,6 @@
   z-index: 1000;
 }
 
-
-
 .navbar-left {
   display: flex;
   align-items: center;
@@ -98,6 +96,34 @@
   border-color: #6c2bd9;
 }
 
+.navbar-user {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1e1e2f;
+  background-color: #f3f3f3;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  height: 16px;
+  line-height: 1;
+}
+
+.logout-btn {
+  margin-top: 0px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  background-color: #6c2bd9;
+  border: none;
+  border-radius: 20px;
+  padding: 0.4rem 0.8rem;
+  display: flex;
+  align-items: center;
+  height: 32px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
 
 .navbar-auth {
   display: flex;
