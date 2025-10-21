@@ -38,11 +38,11 @@ const ControlCategoria = () => {
   return (
     <div className="panel-layout-container">
       <div className="header">
-        <h2>Manage Categories</h2>
+        <h2>Control de Categorias</h2>
         <button className="add-btn" onClick={() => {
           setSelectedCategory(null);
           setShowForm(true);
-        }}>+ Add Category</button>
+        }}>+ Agregar Categoria</button>
       </div>
 
       {showForm && (
@@ -58,7 +58,7 @@ const ControlCategoria = () => {
           <tr>
             <th>ID</th>
             <th>Descripcion</th>
-            <th>Actions</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>

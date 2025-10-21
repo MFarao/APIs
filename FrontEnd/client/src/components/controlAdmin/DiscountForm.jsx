@@ -2,11 +2,33 @@ import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 
 const DiscountForm = ({ discount, onClose, onRefresh }) => {
-  const[formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     percentage: "",
     startDate: "",
     endDate: "",
+    productsId: "",
+    categoriesId: "",
   });
+
+  useEffect(() => {
+    if (discount) {
+      setFormData({
+        percentage: discount.percentage.toString(),
+        startDate: discount.startDate,
+        endDate: discount.endDate,
+        productsId: "",      // no se precargan porque no vienen en el DTO
+        categoriesId: "",    // pero se pueden asignar nuevos
+      });
+    } else {
+      setFormData({
+        percentage: "",
+        startDate: "",
+        endDate: "",
+        productsId: "",
+        categoriesId: "",
+      });
+    }
+  }, [discount]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,6 +40,15 @@ const DiscountForm = ({ discount, onClose, onRefresh }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (new Date(formData.startDate) > new Date(formData.endDate)) {
+      Swal.fire({
+        title: "Fechas inválidas",
+        text: "La fecha de inicio no puede ser posterior a la de fin.",
+        icon: "error",
+      });
+      return;
+    }
 
     const confirm = await Swal.fire({
       title: discount ? "¿Actualizar descuento?" : "¿Crear descuento?",
@@ -37,6 +68,18 @@ const DiscountForm = ({ discount, onClose, onRefresh }) => {
       ? `http://localhost:4002/discounts/${discount.id}`
       : "http://localhost:4002/discounts";
 
+    const payload = {
+      ...formData,
+      productsId: formData.productsId
+        .split(",")
+        .map((id) => parseInt(id.trim()))
+        .filter((id) => !isNaN(id)),
+      categoriesId: formData.categoriesId
+        .split(",")
+        .map((id) => parseInt(id.trim()))
+        .filter((id) => !isNaN(id)),
+    };
+
     try {
       const res = await fetch(url, {
         method,
@@ -44,7 +87,7 @@ const DiscountForm = ({ discount, onClose, onRefresh }) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) throw new Error("Error al guardar descuento");
@@ -100,14 +143,33 @@ const DiscountForm = ({ discount, onClose, onRefresh }) => {
           required
         />
 
+        <label>Asignar Productos (IDs separados por coma)</label>
+        <input
+          type="text"
+          name="productsId"
+          value={formData.productsId}
+          onChange={handleChange}
+          placeholder="Ej: 1, 2, 3"
+        />
+
+        <label>Asignar Categorías (IDs separados por coma)</label>
+        <input
+          type="text"
+          name="categoriesId"
+          value={formData.categoriesId}
+          onChange={handleChange}
+          placeholder="Ej: 10, 12"
+        />
+
         <div className="form-actions">
           <button type="submit">Guardar</button>
-          <button type="button" onClick={onClose}>Cancelar</button>
+          <button type="button" onClick={onClose}>
+            Cancelar
+          </button>
         </div>
       </form>
     </div>
   );
 };
-
 
 export default DiscountForm;

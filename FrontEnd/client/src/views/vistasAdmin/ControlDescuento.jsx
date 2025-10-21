@@ -87,7 +87,7 @@ const ControlDescuento = () => {
                         <th>Porcentaje</th>
                         <th>Fecha de Inicio</th>
                         <th>Fecha de Fin</th>
-                        <th>Activo</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>

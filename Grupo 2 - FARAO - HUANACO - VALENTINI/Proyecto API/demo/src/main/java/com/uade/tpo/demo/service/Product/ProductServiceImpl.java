@@ -136,7 +136,10 @@ public class ProductServiceImpl implements ProductService{
             if (productUpdateRequest.getStock() != null && productUpdateRequest.getStock() >= 0){
                 product.setStock(productUpdateRequest.getStock());
                 if(product.getStock()==0 && product.isActivo()){ // si el stock es 0 y esta activo, lo desactivamos
-                    product = in_activarProductoById(product.getId());
+                    product.setActivo(false);
+                }
+                if(product.getStock()>=0 && !product.isActivo()){ // si el stock es mayor a 0 y esta desactivado, lo activamos
+                    product.setActivo(true);
                 }
             }if (productUpdateRequest.getImageUrls() != null) {
                 product.setImageUrls(new ArrayList<>(productUpdateRequest.getImageUrls())); // si tiene imagenes setea un nuevo array con las mismas pisando el anterior

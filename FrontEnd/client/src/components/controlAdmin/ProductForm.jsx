@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 
-const ProductForm = ({ product, onClose, onRefresh }) => { // puede ser q venga un producto para su modificacion o no para la creacion
-  const [formData, setFormData] = useState({ // usamos el estado para guardar los datos
+const ProductForm = ({ product, onClose, onRefresh }) => {
+  const [formData, setFormData] = useState({
     name: "",
     description: "",
     price: 1,
@@ -13,27 +13,26 @@ const ProductForm = ({ product, onClose, onRefresh }) => { // puede ser q venga 
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if(type === "number"){
-      if(value> 0){
-          setFormData((prev) => ({
+
+    if (type === "number") {
+      if (value > 0) {
+        setFormData((prev) => ({
           ...prev,
-          [name]: type === "checkbox" ? checked : value,
+          [name]: value,
         }));
-      }else{
-        return
       }
-    }else{
+    } else {
       setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      }));
     }
-  
   };
 
-  const handleSubmit = async (e) => {e.preventDefault();
-    
-    const confirmacion = await Swal.fire({ // damos alerta ue si desea cargar o no el producto
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const confirmacion = await Swal.fire({
       title: "¿Publicar este producto?",
       text: "Estás por guardar y publicar este producto en la tienda.",
       icon: "warning",
@@ -46,27 +45,34 @@ const ProductForm = ({ product, onClose, onRefresh }) => { // puede ser q venga 
 
     if (!confirmacion.isConfirmed) return;
 
-    const method = product ? "PUT" : "POST"; // vemos a q endpoint mapear dependiendo si es put o post
+    const method = product ? "PUT" : "POST";
     const url = product
       ? `http://localhost:4002/products/${product.id}`
       : "http://localhost:4002/products";
-    
-    const body = { //cargamos los datos base
+
+    const body = {
       name: formData.name,
       description: formData.description,
       price: formData.price,
-      categoryId: formData.categoryId,
+      categoryId: formData.categoryId === "" ? null : formData.categoryId,
       stock: formData.stock,
     };
-    console.log(formData.imageUrls)
-    try{
-      if (formData.imageUrls) { // si hay imagenes con el formato correcto (img1,img2,img3) lo convertimos a array para que el back pueda cargar biien
-      body.imageUrls = formData.imageUrls
-        .split(",")                 // separa por comas las imagenes
-        .map((url) => url.trim())   // limpia espacios
-        .filter((url) => url !== ""); // sacamos los vacios
+
+    try {
+      if (formData.imageUrls) {
+        if (typeof formData.imageUrls === "string") {
+          body.imageUrls = formData.imageUrls
+            .split(",")
+            .map((url) => url.trim())
+            .filter((url) => url !== "");
+        } else if (Array.isArray(formData.imageUrls)) {
+          body.imageUrls = formData.imageUrls.filter((url) => typeof url === "string");
+        }
+      }
+    } catch (err) {
+      console.error("Error al procesar las imágenes:", err);
     }
-    }catch(err){console.error("Error al guardar producto:", err)}
+
     try {
       const response = await fetch(url, {
         method,
@@ -74,7 +80,7 @@ const ProductForm = ({ product, onClose, onRefresh }) => { // puede ser q venga 
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) throw new Error("Error al guardar producto");
@@ -98,18 +104,27 @@ const ProductForm = ({ product, onClose, onRefresh }) => { // puede ser q venga 
   };
 
   useEffect(() => {
-    if (product) { // si hay producto llenamos los datos del state usandolo como dependencia
+    if (product) {
       setFormData({
         name: product.name || "",
         description: product.description || "",
         price: product.price || 0,
         categoryId: product.categoryId || "",
-        imageUrls: product.imageUrls || "",
+        imageUrls: Array.isArray(product.imageUrls)
+          ? product.imageUrls.join(", ")
+          : product.imageUrls || "",
         stock: product.stock || 0,
         active: product.active ?? true,
       });
     }
   }, [product]);
+
+  const camposObligatorios = [
+    formData.name,
+    formData.description,
+    formData.price,
+    formData.stock,
+  ];
 
   return (
     <div className="form-overlay">
@@ -133,6 +148,7 @@ const ProductForm = ({ product, onClose, onRefresh }) => { // puede ser q venga 
           required
         />
 
+        <label>Precio</label>
         <input
           type="number"
           name="price"
@@ -145,20 +161,20 @@ const ProductForm = ({ product, onClose, onRefresh }) => { // puede ser q venga 
         <input
           type="text"
           name="categoryId"
-          placeholder="ID Categoría"
+          placeholder="ID Categoría (opcional)"
           value={formData.categoryId}
           onChange={handleChange}
-          required
         />
 
         <input
           type="text"
           name="imageUrls"
-          placeholder="URL de imagen: formato [img1,..,img3] max(3)"
+          placeholder="URLs de imagen separadas por coma"
           value={formData.imageUrls}
           onChange={handleChange}
         />
 
+        <label>Stock</label>
         <input
           type="number"
           name="stock"
@@ -169,8 +185,12 @@ const ProductForm = ({ product, onClose, onRefresh }) => { // puede ser q venga 
         />
 
         <div className="form-actions">
-          <button type="submit"disabled= {!formData.categoryId && !formData.description && !formData.name && !formData.imageUrls && !formData.price && !formData.stock}>Guardar</button>
-          <button type="button" onClick={onClose}>Cancelar</button>
+          <button type="submit" disabled={camposObligatorios.some((campo) => !campo)}>
+            Guardar
+          </button>
+          <button type="button" onClick={onClose}>
+            Cancelar
+          </button>
         </div>
       </form>
     </div>

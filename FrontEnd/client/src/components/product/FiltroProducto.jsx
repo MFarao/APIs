@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 
 const FiltroProducto = ({onFiltro}) => {
   const [categorias, setCategorias] = useState([]);
-  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todos");
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todas"); // inicializamos todas como filtro automatico
   const [precioMin, setPrecioMin] = useState("");
   const [precioMax, setPrecioMax] = useState("");
 

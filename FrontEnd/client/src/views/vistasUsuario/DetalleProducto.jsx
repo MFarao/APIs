@@ -1,20 +1,20 @@
-import React from "react";
-import { useEffect, useState} from "react";
-import { useParams, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, useLocation, Link } from "react-router-dom";
 import "../../estilos/DetalleProducto.css";
-import { Link } from "react-router-dom";
 
 const DetalleProducto = () => {
   const [p, setProducto] = useState(null);
+  const [imagenPrincipal, setImagenPrincipal] = useState("");
   const { id } = useParams();
-  const Url = `http://localhost:4002/products/${id}`;
   const location = useLocation();
-  
-    useEffect(() => {
-    fetch(Url) // mapeamos el endpoint del producto
+  const Url = `http://localhost:4002/products/${id}`;
+
+  useEffect(() => { // hacemos el fetch del producto
+    fetch(Url)
       .then((response) => response.json())
       .then((data) => {
-        setProducto(data)
+        setProducto(data);
+        setImagenPrincipal(data.imageUrls?.[0] || "");
       })
       .catch((error) => {
         console.error("Error al obtener los datos: ", error.message);
@@ -23,22 +23,30 @@ const DetalleProducto = () => {
 
   if (!p) return <h3 className="cargando">Cargando producto...</h3>;
 
-  const enSesion= () =>{
-    if(!localStorage.getItem("token")){ // esta logeado?
-      localStorage.setItem("ultimaRuta", location.pathname) // guardamos la ruta si no esta logeado
-      return false
-    }else{return true}
-  }
+  const enSesion = () => { // chequeamos si el usuario esta iniciado o no consultando el local storage que se arma cuando se renderiza al iniciar sesion
+    if (!localStorage.getItem("token")) {
+      localStorage.setItem("ultimaRuta", location.pathname); // si no esta iniciado guardamos la ruta para redirigirlo
+      return false;
+    } else {
+      return true;
+    }
+  };
 
-  const user = JSON.parse(localStorage.getItem("user"))// obtenemos el usuario en sesion
+  const user = JSON.parse(localStorage.getItem("user"));
 
   return (
-<main className="detalle-container">
+    <main className="detalle-container">
       <div className="galeria">
-        <img src={p.imageUrls?.[0]} alt={p.name} className="imagen-principal" />
+        <img src={imagenPrincipal} alt={p.name} className="imagen-principal" />
         <div className="miniaturas">
-          {p.imageUrls?.slice(1, 3).map((url, i) => (
-            <img key={i} src={url} alt={`Vista ${i + 2}`} className="miniatura" />
+          {p.imageUrls?.slice(0, 3).map((url, i) => (
+            <img
+              key={i}
+              src={url}
+              alt={`Vista ${i + 1}`}
+              className="miniatura"
+              onMouseEnter={() => setImagenPrincipal(url)}
+            />
           ))}
         </div>
       </div>
@@ -66,17 +74,20 @@ const DetalleProducto = () => {
             Descuento hasta: {new Date(p.discountEndDate).toLocaleDateString()}
           </p>
         )}
-        {user?.role === "USER" ? // es un usuario y no un admin? si es un admin no mostramos el boton de compra o inicio
-         (enSesion() ? // esta en sesion?
-        <Link to={`/checkout/${id}`} className="boton-carrito">Comprar</Link>  //tiene la posibilidad de comprar 
-        : <Link to={"/inicio"} className="boton-carrito">Iniciá sesión y compra!</Link> ): ""}
+
+        {enSesion() ? ( // si esta en sesion vemos que es rol tiene para mostrarlo o no // si no esta iniciado se muestra el boton de inicia sesion y compra
+          user?.role === "USER"? (
+            <Link to={`/checkout/${id}`} className="boton-carrito">Comprar</Link>
+          ) : (
+            null
+          )
+        ) : <Link to={"/inicio"} className="boton-carrito">Iniciá sesión y compra!</Link>} 
 
         <div className="detalles-tecnicos">
           <h2>Detalle del Producto</h2>
           <ul>
-            <li><strong>Categoria:</strong> {p.categoryName ? p.categoryName : "Sin Categoria"}</li>
+            <li><strong>Categoria:</strong> {p.categoryName || "Sin Categoria"}</li>
             <li><strong>Estado:</strong> {p.active ? "Nuevo" : "Inactivo"}</li>
-
             <li><strong>Stock:</strong> {p.stock > 0 ? `${p.stock} disponibles` : "Sin stock"}</li>
           </ul>
         </div>
@@ -86,3 +97,4 @@ const DetalleProducto = () => {
 };
 
 export default DetalleProducto;
+

@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import "../../estilos/Auth.css";
+import Swal from "sweetalert2";
 
 const Inicio = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -22,7 +23,7 @@ const Inicio = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
-      });
+      }); // recibimos el token
 
       if (!res.ok) throw new Error("Correo o contraseña incorrectos");
 
@@ -32,32 +33,45 @@ const Inicio = () => {
 
       localStorage.setItem("token", token);
 
-      // Obtener perfil del usuario con el token
+      // agarramos el perfil del usuario con el token
       const perfilRes = await fetch("http://localhost:4002/users/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!perfilRes.ok) throw new Error("No se pudo obtener el perfil del usuario");
 
+
       const user = await perfilRes.json();
-      localStorage.setItem("user", JSON.stringify(user));
+      console.log(user.role)
+      if(user.role === "BLOQUEADO"){ // si el usuario tiene rol bloqueado no inicia sesion
 
+        Swal.fire({
+          title: "Acceso denegado",
+          text: "Tu cuenta está bloqueada. Contactá al administrador.",
+          icon: "error",
+          confirmButtonText: "Entendido",
+        });
+        return;
 
-      const ultimaRuta = localStorage.getItem("ultimaRuta");
+      }else{ // si el usuario no esta bloqueado lo manda a la ultima ruta en la q estuvo
 
-      if(!ultimaRuta){ // chequeamos si vino del boton de detallePedido (el cual captura la ultimaruta en el LocalStorage)
-      // Redirección: si vino de /registro -> /productos, si vino de otra ruta, regresar ahí, si no -> /productos
-        const destino =
-        location.state?.from === "/registro"
-          ? "/productos"
-          : location.state?.from || "/productos";
+        localStorage.setItem("user", JSON.stringify(user)); // lo guardamos en el local
+        const ultimaRuta = localStorage.getItem("ultimaRuta");
+
+        if(!ultimaRuta){ // chequeamos si vino del boton de detallePedido (el cual captura la ultimaruta en el LocalStorage)
+        // si vino de /registro lo mandamos a /productos, si vino de otra ruta, regresar ahí, si no /productos
+          const destino =
+          location.state?.from === "/registro"
+            ? "/productos"
+            : location.state?.from || "/productos";
+            navigate(destino);
+        }else{
+          const destino = ultimaRuta
           navigate(destino);
+          localStorage.removeItem("ultimaRuta"); //limpiamos el LocalStorage para evitar redirecciones indeseadas
+        }
       }
-      else{
-        const destino = ultimaRuta
-        navigate(destino);
-        localStorage.removeItem("ultimaRuta"); //limpiamos el LocalStorage para evitar redirecciones indeseadas
-      }
+      
     } catch (err) {
       setError(err.message || "Error al iniciar sesión");
     }

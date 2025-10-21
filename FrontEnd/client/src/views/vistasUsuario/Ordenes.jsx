@@ -5,7 +5,7 @@ import "../../estilos/Ordenes.css";
 const Ordenes = () => {
   const [ordenes, setOrdenes] = useState([]);
   const [error, setError] = useState("");
-  const [filtroEstado, setFiltroEstado] = useState("TODOS"); // estado para el filtro de entregsdos
+  const [filtroEstado, setFiltroEstado] = useState("TODOS"); // estado para los Estados de las ordenes (lo usamos como filtro)
 
   const token = localStorage.getItem("token");
 
@@ -43,7 +43,7 @@ const Ordenes = () => {
       <h2 className="ordenes-h2">Mis Órdenes</h2>
 
       <div className="ordenes-tabs">
-        {["Todos", "Pago", "Preparando", "Enviado" , "Entregado"].map((estado) => (
+        {["Todos", "Pago", "Preparando", "Enviado" , "Entregado"].map((estado) => ( // creamos las etiquetas de los filtros 
           <button
             key={estado.toUpperCase()}
             className={`ordenes-tab ${filtroEstado === estado.toUpperCase() ? "active" : ""}`}

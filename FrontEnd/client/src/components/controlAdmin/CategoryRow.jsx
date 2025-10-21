@@ -4,8 +4,8 @@ const CategoryRow = ({ category, onEdit, onDelete }) => {
       <td>{category.id}</td>
       <td>{category.description}</td>
       <td>
-        <button className="button edit" onClick={onEdit}>Edit</button>
-        <button className="button delete" onClick={onDelete}>Delete</button>
+        <button className="button edit" onClick={onEdit}>Editar</button>
+        <button className="button delete" onClick={onDelete}>Eliminar</button>
       </td>
     </tr>
   );

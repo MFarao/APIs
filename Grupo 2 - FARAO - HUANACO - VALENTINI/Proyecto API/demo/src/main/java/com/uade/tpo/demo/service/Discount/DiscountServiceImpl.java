@@ -58,64 +58,93 @@ public class DiscountServiceImpl implements DiscountService {
     } 
 
     @Transactional(rollbackFor = Throwable.class)
-    public Discount updateDiscounts(Long discountId, DiscountUpdateRequest discountUpdateRequest) throws CategoryNoExistsException, DiscountNotExistsException, ProductNotExistsException {
-        Optional<Discount> discount =  discountRepo.findById(discountId);
-        if (discount.isPresent()) {
-            Discount dis =  discount.get();
+    public Discount updateDiscounts(Long discountId, DiscountUpdateRequest discountUpdateRequest)
+            throws CategoryNoExistsException, DiscountNotExistsException, ProductNotExistsException {
 
-            if (!discountUpdateRequest.getCategoriesId().isEmpty()) {
+        Discount dis = discountRepo.findById(discountId)
+            .orElseThrow(DiscountNotExistsException::new);
 
-                for (Long categoryId : discountUpdateRequest.getCategoriesId()) { // para todos los id chequeamos si existen y modificamos sus productos
-                    Optional<Category> category = categoryRepo.findById(categoryId);
+        // Actualizar fechas si vienen
+        if (discountUpdateRequest.getStartDate() != null) {
+            dis.setStartDate(discountUpdateRequest.getStartDate());
+        }
+        if (discountUpdateRequest.getEndDate() != null) {
+            dis.setEndDate(discountUpdateRequest.getEndDate());
+        }
 
-                    if (category.isPresent()){
-                        Category cat = category.get();
-                        for (Product product : productRepo.findAllByCategoryId(categoryId)) { // para todos los productos de una categoria rehacemos el precio
-                            double precioDescuento = product.getPrecio() * (1 - dis.getPercentage());
-                            precioDescuento = Math.round(precioDescuento * 100.0) / 100.0;
-                            product.setPrecioDescuento(precioDescuento);
-                            product.setDiscount(dis);
-                            productRepo.save(product);
-                        }
-                        dis.getCategory().add(cat);
-                        dis.setActive(true); // si se quiere actualizar uno desactivado que lo active
-                        
-                    }
-                    else{
-                        throw new CategoryNoExistsException();
-                    }
-                }
-                discountRepo.save(dis);
-                return dis;
-
-            }else if (!discountUpdateRequest.getProductsId().isEmpty()) {
-
-                for (Long productsId : discountUpdateRequest.getProductsId()) { // para todos los id chequeamos si existen y modificamos sus productos
-                    Optional<Product> product = productRepo.findById(productsId);
-                    
-                    if (product.isPresent()){
-                        Product pro = product.get();
-
-                        double precioDescuento = pro.getPrecio() * (1 - dis.getPercentage());
-                        precioDescuento = Math.round(precioDescuento * 100.0) / 100.0;
-                        pro.setPrecioDescuento(precioDescuento);
-                        pro.setDiscount(dis);
-                        productRepo.save(pro);
-
-                        dis.getProduct().add(pro);
-                        dis.setActive(true); // si se quiere actualizar uno desactivado que lo active
-                        
-                    }else{
-                        throw new ProductNotExistsException();
-                    }
-            
-                }
-                discountRepo.save(dis);
-                return dis;
+        // Actualizar porcentaje y recalcular si corresponde
+        if (discountUpdateRequest.getPercentage() != null) {
+            double newPercentage = discountUpdateRequest.getPercentage() / 100.0;
+            if (newPercentage <= 0 || newPercentage >= 1) {
+                throw new IllegalArgumentException("El porcentaje debe estar entre 1 y 99");
             }
+            dis.setPercentage(newPercentage);
+            applyDiscountToProducts(dis); // 🔁 recalcular productos ya asociados
+        }
+
+        // Asignar nuevas categorías
+        if (discountUpdateRequest.getCategoriesId() != null && !discountUpdateRequest.getCategoriesId().isEmpty()) {
+            for (Long categoryId : discountUpdateRequest.getCategoriesId()) {
+                Category cat = categoryRepo.findById(categoryId)
+                    .orElseThrow(CategoryNoExistsException::new);
+
+                for (Product product : productRepo.findAllByCategoryId(categoryId)) {
+                    double precioDescuento = product.getPrecio() * (1 - dis.getPercentage());
+                    precioDescuento = Math.round(precioDescuento * 100.0) / 100.0;
+                    product.setPrecioDescuento(precioDescuento);
+                    product.setDiscount(dis);
+                    productRepo.save(product);
+                }
+
+                dis.getCategory().add(cat);
+                dis.setActive(true);
+            }
+        }
+
+        // Asignar nuevos productos
+        if (discountUpdateRequest.getProductsId() != null && !discountUpdateRequest.getProductsId().isEmpty()) {
+            for (Long productId : discountUpdateRequest.getProductsId()) {
+                Product pro = productRepo.findById(productId)
+                    .orElseThrow(ProductNotExistsException::new);
+
+                double precioDescuento = pro.getPrecio() * (1 - dis.getPercentage());
+                precioDescuento = Math.round(precioDescuento * 100.0) / 100.0;
+                pro.setPrecioDescuento(precioDescuento);
+                pro.setDiscount(dis);
+                productRepo.save(pro);
+
+                dis.getProduct().add(pro);
+                dis.setActive(true);
+            }
+        }
+
+        discountRepo.save(dis);
+        return dis;
     }
-    throw new DiscountNotExistsException();
-}
+
+    private void applyDiscountToProducts(Discount dis) {
+        if (dis.getProduct() != null) {
+            for (Product product : dis.getProduct()) {
+                double precioDescuento = product.getPrecio() * (1 - dis.getPercentage());
+                precioDescuento = Math.round(precioDescuento * 100.0) / 100.0;
+                product.setPrecioDescuento(precioDescuento);
+                productRepo.save(product);
+            }
+        }
+
+        if (dis.getCategory() != null) {
+            for (Category category : dis.getCategory()) {
+                for (Product product : productRepo.findAllByCategoryId(category.getId())) {
+                    double precioDescuento = product.getPrecio() * (1 - dis.getPercentage());
+                    precioDescuento = Math.round(precioDescuento * 100.0) / 100.0;
+                    product.setPrecioDescuento(precioDescuento);
+                    productRepo.save(product);
+                }
+            }
+        }
+    }
+
+
 
     @Override //Saca la relacion descuento a los productos asignados
     @Transactional(rollbackFor = Throwable.class)

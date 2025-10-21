@@ -63,7 +63,7 @@ const ControlProducto = () => {
             <th>Con descuento</th>
             <th>Stock</th>
             <th>Estado</th>
-            <th></th>
+            <th>Imagenes</th>
             <th>Acciones</th>
           </tr>
         </thead>

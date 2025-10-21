@@ -236,6 +236,53 @@
 .order-btn:not(:disabled):hover {
   transform: translateY(-2px);
 }
+/* Botones de usuario: bloquear / desbloquear */
+.user-btn {
+  padding: 0.4rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-right: 0.4rem;
+  transition: transform 0.1s ease;
+}
 
+.user-btn.block {
+  background-color: #ef4444;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(239,68,68,0.18);
+}
 
+.user-btn.unblock {
+  background-color: #10b981;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(16,185,129,0.18);
+}
+
+.user-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.user-btn:disabled {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Celda de acciones para usuarios */
+.user-action-cell {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  padding-right: 0.25rem;
+}
+
+/* Centra el contenido de la tabla */
+.panel-layout-table th,
+.panel-layout-table td {
+  text-align: center;
+}
 

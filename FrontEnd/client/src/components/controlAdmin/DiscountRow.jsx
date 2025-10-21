@@ -11,7 +11,7 @@ const DiscountRow = ({ discount, onEdit, onToggle }) => {
         </span>
       </td>
       <td>
-        <button className="button edit" onClick={() => onEdit(discount)}>Edit</button>
+        <button className="button edit" onClick={() => onEdit(discount)}>Editar</button>
         <button className="button delete" onClick={() => onToggle(discount.id)}>
           {discount.active ? "🚫" : "✅"}
         </button>

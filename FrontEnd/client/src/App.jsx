@@ -14,6 +14,7 @@ import Ordenes from "./views/vistasUsuario/Ordenes.jsx";
 import Sale from "./views/vistasUsuario/Sale.jsx";
 import DetalleProducto from "./views/vistasUsuario/DetalleProducto.jsx";
 import Checkout from "./views/vistasUsuario/Checkout.jsx";
+
 import ConfiguracionUsuario from "./views/vistasUsuario/ConfiguracionUsuario.jsx";
 
 import PanelLayout  from "./views/vistasAdmin/PanelLayout.jsx";
@@ -21,7 +22,7 @@ import ControlProducto from "./views/vistasAdmin/ControlProducto.jsx";
 import ControlCategorias from "./views/vistasAdmin/ControlCategorias.jsx";
 import ControlOrdenes from "./views/vistasAdmin/ControlOrdenes.jsx";
 import ControlDescuento from "./views/vistasAdmin/ControlDescuento.jsx";
-
+import ControlUsuarios from "./views/vistasAdmin/ControlUsuarios.jsx";
 
 
 import { useState } from "react";
@@ -57,6 +58,8 @@ function App() {
           <Route path="categorias" element={<ControlCategorias />} />
           <Route path="ordenes" element={<ControlOrdenes />} />
           <Route path="descuentos" element={<ControlDescuento />} />
+          <Route path="usuarios" element={<ControlUsuarios />} />
+
         </Route>
 
         {/* Protegidas USER */}

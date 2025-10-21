@@ -1,89 +1,75 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../../estilos/Home.css';
+
 import NavBar from '../../components/NavBar.jsx';
-import CardList from '../../components/CardList.jsx';
 import ProductCarousel from '../../components/product/ProductCarousel.jsx';
 import HeroCarousel from '../../components/HeroCarousel.jsx';
 
-// Esculturas
-import escultura1 from '../../assets/escultura1.png';
-import escultura2 from '../../assets/escultura2.png';
-import escultura3 from '../../assets/escultura3.png';
-import escultura4 from '../../assets/escultura4.png';
-import escultura5 from '../../assets/escultura5.png';
-import escultura6 from '../../assets/escultura6.png';
-
-// Espadas
-import espada1 from '../../assets/espada1.png';
-import espada2 from '../../assets/espada2.png';
-import espada3 from '../../assets/espada3.png';
-import espada4 from '../../assets/espada4.png';
-import espada5 from '../../assets/espada5.png';
-import espada6 from '../../assets/espada6.png';
-
-// Ropa
-import ropa1 from '../../assets/ropa1.png';
-import ropa2 from '../../assets/ropa2.png';
-import ropa3 from '../../assets/ropa3.png';
-import ropa4 from '../../assets/ropa4.png';
-import ropa5 from '../../assets/ropa5.png';
-import ropa6 from '../../assets/ropa6.png';
-
-
 const Home = () => {
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const navigate = useNavigate();
 
-const esculturas = [
-    { id: 'e1', title: 'Escultura 1', image: escultura1 },
-    { id: 'e2', title: 'Escultura 2', image: escultura2 },
-    { id: 'e3', title: 'Escultura 3', image: escultura3 },
-    { id: 'e4', title: 'Escultura 4', image: escultura4 },
-    { id: 'e5', title: 'Escultura 5', image: escultura5 },
-    { id: 'e6', title: 'Escultura 6', image: escultura6 }
-];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [catRes, prodRes] = await Promise.all([
+          fetch('http://localhost:4002/categories'),
+          fetch('http://localhost:4002/products'),
+        ]);
 
-const espadas = [
-    { id: 's1', title: 'Espada 1', image: espada1 },
-    { id: 's2', title: 'Espada 2', image: espada2 },
-    { id: 's3', title: 'Espada 3', image: espada3 },
-    { id: 's4', title: 'Espada 4', image: espada4 },
-    { id: 's5', title: 'Espada 5', image: espada5 },
-    { id: 's6', title: 'Espada 6', image: espada6 }
-];
+        const catData = await catRes.json();
+        const prodData = await prodRes.json();
 
-const ropa = [
-    { id: 'r1', title: 'Ropa 1', image: ropa1 },
-    { id: 'r2', title: 'Ropa 2', image: ropa2 },
-    { id: 'r3', title: 'Ropa 3', image: ropa3 },
-    { id: 'r4', title: 'Ropa 4', image: ropa4 },
-    { id: 'r5', title: 'Ropa 5', image: ropa5 },
-    { id: 'r6', title: 'Ropa 6', image: ropa6 }
-];
+        setCategories(catData.slice(0, 3));
+        setProducts(prodData);
+      } catch (err) {
+        console.error('Error al cargar datos:', err);
+      }
+    };
 
-return (
+    fetchData();
+  }, []);
+
+  return (
     <div className="home-page">
       <NavBar />
-      
-      {/* --- ¡AQUÍ ESTÁ TU NUEVO CARRUSEL DE HERO! --- */}
-      <HeroCarousel /> 
+
+      <div className="home-container">
+        <HeroCarousel />
+      </div>
 
       <main className="main-content">
-        
-        <ProductCarousel title="Esculturas" products={esculturas} />
-        <ProductCarousel title="Espadas" products={espadas} />
-        <ProductCarousel title="Ropa" products={ropa} />
+        {categories.map((cat) => {
+          const productosFiltrados = products
+            .filter((p) => p.categoryId === cat.id && p.stock > 0)
+            .slice(0, 10);
 
-        <section className="community-cta" style={{textAlign: 'center', marginTop: '50px', padding: '40px', backgroundColor: '#f4f4f4'}}>
-          <h2>Join the Geek Haven Community</h2>
-          <p>Stay up-to-date on the latest arrivals...</p>
-          <button style={{padding: '10px 20px', fontSize: '1em', cursor: 'pointer', backgroundColor: '#8a2be2', color: 'white', border: 'none'}}>Sign Up Now</button>
+          return (
+            <ProductCarousel
+              key={cat.id}
+              title={cat.description}
+              products={productosFiltrados}
+            />
+          );
+        })}
+
+        <section className="community-cta">
+          <h2>Unite a la comunidad de Geek Haven</h2>
+          <p>Enterate de nuevas ofertas limitadas...</p>
+          <button onClick={() => navigate('/registro')}>Registrate</button>
         </section>
-
       </main>
 
-      <footer className="main-footer" style={{textAlign: 'center', padding: '20px', backgroundColor: '#333', color: 'white', marginTop: '50px'}}>
-        <p>&copy; 2023 Geek Haven. All rights reserved.</p>
+      <footer className="main-footer">
+        <p>&copy; 2025 Geek Haven. Todos los derechos están reservados.</p>
       </footer>
     </div>
   );
 };
 
 export default Home;
+
+
+
