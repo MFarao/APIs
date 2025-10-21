@@ -2,6 +2,7 @@ import React from 'react';
 import NavBar from '../../components/NavBar.jsx';
 import CardList from '../../components/CardList.jsx';
 import ProductCarousel from '../../components/product/ProductCarousel.jsx';
+import HeroCarousel from '../../components/HeroCarousel.jsx';
 
 // Esculturas
 import escultura1 from '../../assets/escultura1.png';
@@ -59,39 +60,30 @@ const ropa = [
 
 return (
     <div className="home-page">
-    <NavBar />
+      <NavBar />
+      
+      {/* --- ¡AQUÍ ESTÁ TU NUEVO CARRUSEL DE HERO! --- */}
+      <HeroCarousel /> 
 
-    <img src="/images/escultura1.png" alt="IMAGEN DE PRUEBA" style={{ border: '5px solid red', width: '200px' }} />
-    
-    <section className="hero-banner" style={{padding: '50px', backgroundColor: '#4a1e9e', color: 'white', textAlign: 'center'}}>
-        <h1>Level Up Your Collection</h1>
-        <p>Discover a treasure trove of geek grandeur...</p>
-        <button style={{padding: '10px 20px', fontSize: '1em', cursor: 'pointer'}}>Shop Now</button>
-    </section>
-
-    <main className="main-content">
-                
+      <main className="main-content">
+        
         <ProductCarousel title="Esculturas" products={esculturas} />
-        
         <ProductCarousel title="Espadas" products={espadas} />
-        
         <ProductCarousel title="Ropa" products={ropa} />
 
         <section className="community-cta" style={{textAlign: 'center', marginTop: '50px', padding: '40px', backgroundColor: '#f4f4f4'}}>
-        <h2>Join the Geek Haven Community</h2>
-        <p>Stay up-to-date on the latest arrivals...</p>
-        <button style={{padding: '10px 20px', fontSize: '1em', cursor: 'pointer', backgroundColor: '#8a2be2', color: 'white', border: 'none'}}>Sign Up Now</button>
+          <h2>Join the Geek Haven Community</h2>
+          <p>Stay up-to-date on the latest arrivals...</p>
+          <button style={{padding: '10px 20px', fontSize: '1em', cursor: 'pointer', backgroundColor: '#8a2be2', color: 'white', border: 'none'}}>Sign Up Now</button>
         </section>
 
-    </main>
+      </main>
 
-      {/* (Aquí va tu Footer) */}
-      {/* <Footer /> */}
-    <footer className="main-footer" style={{textAlign: 'center', padding: '20px', backgroundColor: '#333', color: 'white', marginTop: '50px'}}>
+      <footer className="main-footer" style={{textAlign: 'center', padding: '20px', backgroundColor: '#333', color: 'white', marginTop: '50px'}}>
         <p>&copy; 2023 Geek Haven. All rights reserved.</p>
-    </footer>
+      </footer>
     </div>
-);
+  );
 };
 
 export default Home;

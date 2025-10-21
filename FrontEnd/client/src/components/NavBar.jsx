@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../estilos/Navbar.css";
 import flechaIzq from "../assets/flechaIzq.png";
 import logo from "../assets/logo.png";
+import Swal from 'sweetalert2';
 
 const Navbar = ({capturarBusqueda}) => {
   const location = useLocation();
@@ -21,7 +22,7 @@ const Navbar = ({capturarBusqueda}) => {
     } else {
       setUser(null);
     }
-  }, [localStorage.getItem("token")]); // eslint-disable-line
+  }, [localStorage.getItem("token")]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -30,10 +31,29 @@ const Navbar = ({capturarBusqueda}) => {
     navigate("/");
   };
 
+  const confirmarLogout = () => { // preguntamos si quiere cerrar sesion
+  Swal.fire({
+    title: "¿Estás seguro/a?",
+    text: "Vas a cerrar sesión y volver al inicio.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#6b4eff",
+    cancelButtonColor: "#aaa",
+    confirmButtonText: "Sí, cerrar sesión",
+    cancelButtonText: "Cancelar",
+  }).then((result) => {
+    if (result.isConfirmed) { // si confirma hacemos el handle del logout 
+      handleLogout();
+    }
+  });
+};
+
   const mostrarFlechaIzq = location.pathname !== "/";
   const mostrarBusqueda =
-    location.pathname !== "/panelControl" &&
+    !location.pathname.startsWith("/panelControl/")  &&
     location.pathname !== "/misordenes" &&
+    location.pathname !== "/configuracion" &&
+    !location.pathname.startsWith("/productos/") &&
     location.pathname !== "/";
   const mostarNavBar = location.pathname !== "/inicio" && location.pathname !== "/registro";
 
@@ -79,7 +99,7 @@ const Navbar = ({capturarBusqueda}) => {
         </Link>
         {user?.role === "ADMIN" && (
           <Link
-            to="/panelControl"
+            to="/panelControl/productos"
             className={`nav-link ${location.pathname === "/panelControl" ? "active" : ""}`}
           >
             Panel de Control
@@ -97,8 +117,8 @@ const Navbar = ({capturarBusqueda}) => {
         {user ? (
           <>
             {/* uso firstname porque en el backend usabas firstname/lastname */}
-            <span className="navbar-user">Hola, {user.firstname || user.nombre || user.name}</span>
-            <button onClick={handleLogout} className="logout-btn">
+            <Link to="/configuracion" className="navbar-user">Hola, {user.firstname || user.nombre || user.name} !!</Link>
+            <button onClick={confirmarLogout} className="logout-btn">
               Cerrar sesión
             </button>
           </>

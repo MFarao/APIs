@@ -13,6 +13,8 @@
   justify-content: space-between; /* esto empuja el footer al fondo */
   gap: 1rem;
     padding-left: 0.7rem;
+  font-family: 'Space Grotesk', sans-serif;
+
 }
 
 .filtro-footer {
@@ -63,8 +65,12 @@
 }
 
 .categoria-btn.activa {
-  background-color: #41158d;
-  color: #f9f9f9;
+  color: #5d00ff;
+  background-color: rgba(154, 102, 243, 0.283); /* violeta opaco */
+  border: 2px solid #6c2bd9;
+  border-radius: 18px; /* bordes redondeados */
+  transform: translateX(2px);
+  padding-top: 0.8rem;
 }
 
 .precio-inputs {

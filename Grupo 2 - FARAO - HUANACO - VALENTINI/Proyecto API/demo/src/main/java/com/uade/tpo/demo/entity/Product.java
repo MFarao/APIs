@@ -56,8 +56,8 @@ public class Product {
     @Column
     private Double precioDescuento;
 
-    @ManyToOne
-    @JoinColumn(name = "discount_id")
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "discount_id", nullable = true)
     @JsonIgnoreProperties({"product"})
     private Discount discount;
 
@@ -72,7 +72,7 @@ public class Product {
 
     @ElementCollection // especifica que es una coleccion
     @CollectionTable( name = "product_images", joinColumns = @JoinColumn(name = "product_id") ) // crea una tabla secundaria ligada a las imagenes
-    @Column(name = "image_url", nullable = false)
+    @Column(name = "image_url", nullable = false, length = 2000)
     @OrderColumn(name = "position") // preserva el orden asignado
     private List<String> imageUrls = new ArrayList<>();
 

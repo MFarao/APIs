@@ -10,4 +10,5 @@ public class ProductUpdateRequest {
     private Double price;
     private Long categoryId;
     private Integer stock;
+    private List<String> imageUrls;
 }

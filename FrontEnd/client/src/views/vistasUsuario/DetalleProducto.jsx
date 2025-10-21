@@ -1,14 +1,16 @@
 import React from "react";
 import { useEffect, useState} from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import "../../estilos/DetalleProducto.css";
+import { Link } from "react-router-dom";
 
 const DetalleProducto = () => {
   const [p, setProducto] = useState(null);
   const { id } = useParams();
   const Url = `http://localhost:4002/products/${id}`;
-
-   useEffect(() => {
+  const location = useLocation();
+  
+    useEffect(() => {
     fetch(Url) // mapeamos el endpoint del producto
       .then((response) => response.json())
       .then((data) => {
@@ -21,8 +23,17 @@ const DetalleProducto = () => {
 
   if (!p) return <h3 className="cargando">Cargando producto...</h3>;
 
+  const enSesion= () =>{
+    if(!localStorage.getItem("token")){ // esta logeado?
+      localStorage.setItem("ultimaRuta", location.pathname) // guardamos la ruta si no esta logeado
+      return false
+    }else{return true}
+  }
+
+  const user = JSON.parse(localStorage.getItem("user"))// obtenemos el usuario en sesion
+
   return (
- <main className="detalle-container">
+<main className="detalle-container">
       <div className="galeria">
         <img src={p.imageUrls?.[0]} alt={p.name} className="imagen-principal" />
         <div className="miniaturas">
@@ -55,8 +66,10 @@ const DetalleProducto = () => {
             Descuento hasta: {new Date(p.discountEndDate).toLocaleDateString()}
           </p>
         )}
-
-        <button className="boton-carrito">Add to Cart</button>
+        {user?.role === "USER" ? // es un usuario y no un admin? si es un admin no mostramos el boton de compra o inicio
+         (enSesion() ? // esta en sesion?
+        <Link to={`/checkout/${id}`} className="boton-carrito">Comprar</Link>  //tiene la posibilidad de comprar 
+        : <Link to={"/inicio"} className="boton-carrito">Iniciá sesión y compra!</Link> ): ""}
 
         <div className="detalles-tecnicos">
           <h2>Detalle del Producto</h2>

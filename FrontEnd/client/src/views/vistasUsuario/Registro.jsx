@@ -64,8 +64,8 @@ const Registro = () => {
       const user = await perfilRes.json();
       localStorage.setItem("user", JSON.stringify(user));
 
-      // Redirigir a productos
-      navigate("/productos");
+      // Redirigir a inicio
+      navigate("/inicio");
     } catch (err) {
       setError(err.message || "Error en el registro");
     }

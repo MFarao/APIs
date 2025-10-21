@@ -74,7 +74,6 @@ public class DiscountController {
     public ResponseEntity<DiscountDTO> updateDiscounts(@PathVariable Long discountId, @RequestBody DiscountUpdateRequest discountUpdateRequest) throws CategoryNoExistsException, DiscountNotExistsException, ProductNotExistsException {
         Discount updated = discountService.updateDiscounts(discountId, discountUpdateRequest);
         return ResponseEntity.ok(discountService.cargarDiscountDTO(updated));
-
     }
 
     @PutMapping("/{discountId}/deactivate")

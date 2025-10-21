@@ -126,13 +126,20 @@ public class ProductServiceImpl implements ProductService{
                 product.setCategory(c.get());
             }
             if (productUpdateRequest.getPrice() != null && productUpdateRequest.getPrice() > 0) {
-                product.setPrecio(productUpdateRequest.getPrice());
+                if (product.getPrecioDescuento() != null && product.getDiscount() != null) { // si tiene descuento recalculamos el precio descuento
+                    product.setPrecio(productUpdateRequest.getPrice());
+                    product.setPrecioDescuento(product.getPrecio() * product.getDiscount().getPercentage()); 
+                }else{
+                    product.setPrecio(productUpdateRequest.getPrice());
+                }
             }
             if (productUpdateRequest.getStock() != null && productUpdateRequest.getStock() >= 0){
                 product.setStock(productUpdateRequest.getStock());
                 if(product.getStock()==0 && product.isActivo()){ // si el stock es 0 y esta activo, lo desactivamos
                     product = in_activarProductoById(product.getId());
                 }
+            }if (productUpdateRequest.getImageUrls() != null) {
+                product.setImageUrls(new ArrayList<>(productUpdateRequest.getImageUrls())); // si tiene imagenes setea un nuevo array con las mismas pisando el anterior
             }
             productRepository.save(product);
             return product;
@@ -235,7 +242,7 @@ public class ProductServiceImpl implements ProductService{
         dto.setStock(product.getStock());
         dto.setImageUrls(product.getImageUrls());
         dto.setActive(product.isActivo());
-        if (tieneDescuento(product.getId())) {
+        if (tieneDescuento(product.getId()) && product.getDiscount() != null) {
             dto.setPriceDescuento(product.getPrecioDescuento());
             dto.setDiscountEndDate(product.getDiscount().getEndDate());
         }

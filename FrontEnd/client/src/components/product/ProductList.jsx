@@ -18,31 +18,31 @@ const ProductList = ({filtrosAplicar, busqueda, sale}) => {
       });
   }, []);
 
-  if (!products) return <h3 className="cargando">Cargando productos...</h3>;
-
   const aplicarFiltros = () => {
-    if (!filtrosAplicar && !busqueda) return products; //si no hay filtros, devuelve todos los productos
+    if (!filtrosAplicar) return products; //si no hay filtros, devuelve todos los productos
 
     const { categoria, precioMin, precioMax } = filtrosAplicar; // desestructuramos los filtros
 
     return products.filter((p) => {
-      const cumpleCategoria = !categoria || categoria === "Todas" || p.categoryName === categoria;
-      const cumplePrecioMin = !precioMin || p.price >= precioMin;
-      const cumplePrecioMax = !precioMax || p.price <= precioMax;
+      const precioAFiltrar = p.priceDescuento > 0 ? p.priceDescuento : p.price;// si hay precio descuento tomamos ese, si no el normal
+
+      const cumpleCategoria = !categoria || categoria === "Todas" || p.categoryName === categoria; // vemos si cumple los requisitos para que de true y que el filter se quede con el producto
+      const cumplePrecioMin = !precioMin || precioAFiltrar >= precioMin;
+      const cumplePrecioMax = !precioMax || precioAFiltrar <= precioMax;
       return cumpleCategoria && cumplePrecioMin && cumplePrecioMax;
     });
   };
 
-  const productosFiltrados = aplicarFiltros().filter( // solo los activos y con stock
+  const productosMostrar = aplicarFiltros().filter( // aplicamos logica de busqueda y agarramos solo los activos y con stock 
     (p) => p.active && p.stock > 0 
-    && (sale ? p.priceDescuento > 0 : true) // se muestran los que tienen precio descuento o todos (con el true)
+    && (sale ? p.priceDescuento > 0 : true) // se muestran los que tienen precio descuento o todos (dependiendo si el prop sale viene true o false)
     && (!busqueda || // si no hay busqueda, muestra todo (rompia si no)
    p.name.toLowerCase().includes(busqueda.toLowerCase()) || p.description.toLowerCase().includes(busqueda.toLowerCase())));
 
   return (
     <>
       <div className="product-list">
-        {productosFiltrados
+        {productosMostrar
         .map((product) => (
           <ProductComponent
             key={product.id} // mandamos mediante props los datos que vamos a renderizar

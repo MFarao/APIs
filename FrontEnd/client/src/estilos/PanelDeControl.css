@@ -1,3 +1,14 @@
+:root {
+  --primary: #7b2ff7;
+  --primary-hover: #6622cc;
+  --card: #ffffff;
+  --border: #e0e0e6;
+  --radius: 16px;
+  --text-muted: #666;
+  --text-dark: #444;
+  --button-text: #dcd2ec;
+  font-family: 'Space Grotesk', sans-serif;
+}
 .panel-link {
   display: block;
   width: 100%;
@@ -43,9 +54,9 @@
   position: fixed;
   top:59px;
   left: 0;
-  width: 210px;
+  width: 150px;
   height: 90%;
-  background-color: #ffffffd9;
+  background-color: #fff;
   padding: 1.2rem;
   font-family: 'Segoe UI', sans-serif;
   z-index: 999;
@@ -66,8 +77,8 @@
 }
 
 .panel-logo {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   object-fit: contain;
   padding-left: 1.3rem;
 }
@@ -77,5 +88,11 @@
   font-weight: 700;
   color: #6c2bd9;
   padding-right: 1.5rem;
+}
+
+.panel-container{
+  color: black;
+  padding: 6rem;
+  background-color: #f9f9f9;
 }
 

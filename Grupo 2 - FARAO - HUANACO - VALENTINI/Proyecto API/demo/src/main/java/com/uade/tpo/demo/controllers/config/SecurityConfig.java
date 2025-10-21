@@ -46,7 +46,7 @@ public class SecurityConfig {
                                
                                 .requestMatchers(HttpMethod.GET, "/users/me").authenticated() // CUALQUIER USUARIO LOGUEADO PUEDE VER SU PROPIO PERFIL     
                                 .requestMatchers(HttpMethod.GET, "/users/**").hasAuthority(Role.ADMIN.name()) //SOLO LOS ADMINS MANEJAN USUARIOS
-                                .requestMatchers(HttpMethod.PUT, "/users/**").hasAuthority(Role.ADMIN.name()) //SOLO LOS ADMINS MANEJAN USUARIOS
+                                .requestMatchers(HttpMethod.PUT, "/users/**").hasAnyAuthority(Role.USER.name(),Role.ADMIN.name()) //los admins y usarios podran cambiar sus datos
        
                                 .requestMatchers(HttpMethod.GET, "/order").hasAuthority(Role.ADMIN.name()) // TODAS LAS ORDENES SOLO LAS PUEDEN VER LOS ADMINS
                                 .requestMatchers(HttpMethod.GET, "/order/**").hasAnyAuthority(Role.USER.name(),Role.ADMIN.name()) // LAS ORDENES LOS PUEDEN VER TODOS

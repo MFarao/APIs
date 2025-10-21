@@ -73,9 +73,9 @@ public class OrderServiceImpl implements OrderService{
             productController.in_activarProductoById(idProducto);
         }
         Order order; //Para hacer el return de orden
-        if (p.getPrecioDescuento() != null // si tiene descuento y esta dentro de las fechas validas 
-         &&  (LocalDate.now().isAfter(p.getDiscount().getStartDate()) || LocalDate.now().isEqual(p.getDiscount().getStartDate())) //hoy es despues de la fecha de inicio o igual
-         &&  (LocalDate.now().isBefore(p.getDiscount().getEndDate())) || LocalDate.now().isEqual(p.getDiscount().getEndDate()))  //hoy es antes de la fecha final o igual
+        if (p.getPrecioDescuento() != null && p.getDiscount() != null &&
+        ((LocalDate.now().isAfter(p.getDiscount().getStartDate()) || LocalDate.now().isEqual(p.getDiscount().getStartDate())) &&
+        (LocalDate.now().isBefore(p.getDiscount().getEndDate()) || LocalDate.now().isEqual(p.getDiscount().getEndDate()))))  //hoy es antes de la fecha final o igual
          {
             p.setStock(p.getStock() - cantidadProducto); // actualizamos Stock y calculamos el total con el precioDescuento
             order = new Order(p,cantidadProducto,cantidadProducto * p.getPrecioDescuento(),user.get(),envio_a);
@@ -127,6 +127,7 @@ public class OrderServiceImpl implements OrderService{
         dto.setNombreProducto(order.getProduct().getName());
         dto.setTotal(order.getTotal());
         dto.setFecha(order.getFecha());
+        dto.setStatus(order.getStatus().name());
         return dto;
     }
 

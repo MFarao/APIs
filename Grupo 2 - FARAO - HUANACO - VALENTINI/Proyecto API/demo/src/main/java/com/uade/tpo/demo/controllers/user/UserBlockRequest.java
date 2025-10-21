@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class UserBlockRequest {
+    private Long idUser;
     private String email;
     private Role role;
 }

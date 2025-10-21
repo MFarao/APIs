@@ -42,13 +42,22 @@ const Inicio = () => {
       const user = await perfilRes.json();
       localStorage.setItem("user", JSON.stringify(user));
 
+
+      const ultimaRuta = localStorage.getItem("ultimaRuta");
+
+      if(!ultimaRuta){ // chequeamos si vino del boton de detallePedido (el cual captura la ultimaruta en el LocalStorage)
       // Redirección: si vino de /registro -> /productos, si vino de otra ruta, regresar ahí, si no -> /productos
-      const destino =
+        const destino =
         location.state?.from === "/registro"
           ? "/productos"
           : location.state?.from || "/productos";
-
-      navigate(destino);
+          navigate(destino);
+      }
+      else{
+        const destino = ultimaRuta
+        navigate(destino);
+        localStorage.removeItem("ultimaRuta"); //limpiamos el LocalStorage para evitar redirecciones indeseadas
+      }
     } catch (err) {
       setError(err.message || "Error al iniciar sesión");
     }

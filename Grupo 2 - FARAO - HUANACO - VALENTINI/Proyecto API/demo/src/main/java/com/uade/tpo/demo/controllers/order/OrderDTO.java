@@ -14,4 +14,5 @@ public class OrderDTO {
     private double total;
     private String envio_a;
     private LocalDate fecha;
+    private String status;
 }

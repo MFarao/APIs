@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../../estilos/FiltroProducto.css";
 import logo from "../../assets/logo.png";
+import Swal from "sweetalert2";
 
 const FiltroProducto = ({onFiltro}) => {
   const [categorias, setCategorias] = useState([]);
@@ -20,15 +21,29 @@ const FiltroProducto = ({onFiltro}) => {
       });
   }, []);
 
-  const filtroApasar = () => { // cargamos los filtros
+  const filtroApasar = () => { 
 
-    return onFiltro({
-    categoria: categoriaSeleccionada,
-    precioMin: precioMin ? Number(precioMin) : null,
-    precioMax: precioMax ? Number(precioMax) : null,
+    Swal.fire({ // consultamos si quiere aplicar los filtros y si quiere mandamos el onfiltro al padre
+      title: "¿Aplicar filtros?",
+      text: "Se filtrarán los productos según categoría y precio.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#6c2bd9",
+      cancelButtonColor: "#aaa",
+      confirmButtonText: "Sí, aplicar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        onFiltro({
+          categoria: categoriaSeleccionada,
+          precioMin: precioMin ? Number(precioMin) : null,
+          precioMax: precioMax ? Number(precioMax) : null,
+        });
+      }
     });
-    
   };
+
+
   
   return (
     <div className="filtro-producto">

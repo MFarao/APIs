@@ -49,10 +49,10 @@ public class DiscountServiceImpl implements DiscountService {
     }
     @Transactional(rollbackFor = Throwable.class)
     public Discount createDiscount(Double percentage, LocalDate startDate, LocalDate endDate) throws DiscountErrorCreation{
-        if(percentage<=0||percentage>=1||startDate.isBefore(LocalDate.now())||endDate.isBefore(LocalDate.now())){
+        if((percentage/100)<=0||(percentage/100)>=1||startDate.isAfter(endDate)||endDate.isBefore(LocalDate.now())){
             throw new DiscountErrorCreation();
         }
-        Discount d = new Discount(percentage,startDate,endDate);
+        Discount d = new Discount(percentage/100,startDate,endDate);
         discountRepo.save(d);
         return d;
     } 
@@ -125,31 +125,62 @@ public class DiscountServiceImpl implements DiscountService {
             throw new CambioInvalidoException();
         }
         Discount dis = d.get();
-        if (dis.getCategory() != null) {
-            for (Category category : dis.getCategory()) {
-                for (Product product : productRepo.findAllByCategoryId(category.getId())) { // para todos los productos de una categoria rehacemos el precio
-                product.setPrecioDescuento(null);
-                product.setDiscount(null);
+        if(dis.getActive()){
+            if (dis.getCategory() != null) {
+                for (Category category : dis.getCategory()) {
+                    for (Product product : productRepo.findAllByCategoryId(category.getId())) { // para todos los productos de una categoria rehacemos el precio
+                    product.setPrecioDescuento(null);
+                    product.setDiscount(null);
+                    productRepo.save(product);
+                    }
+                }
+                
+            }if (dis.getProduct() !=null) {
+                for (Product product : discountRepo.findProductsByDiscountIds(discountId)) { // para todos los productos que tienen el descuento rehacemos el precio
+                    product.setPrecioDescuento(null);
+                    product.setDiscount(null);
+                    productRepo.save(product);
+
                 }
             }
-            
-        }else if (dis.getProduct() !=null) {
-            for (Product product : discountRepo.findProductsByDiscountIds(discountId)) { // para todos los productos que tienen el descuento rehacemos el precio
-                product.setPrecioDescuento(null);
-                product.setDiscount(null);
+            dis.setActive(false);
+        }else {
+    dis.setActive(true);
 
+    if (dis.getCategory() != null) {
+        for (Category category : dis.getCategory()) {
+            for (Product product : productRepo.findAllByCategoryId(category.getId())) {
+                double precioDescuento = product.getPrecio() * (1 - dis.getPercentage());
+                precioDescuento = Math.round(precioDescuento * 100.0) / 100.0;
+                product.setPrecioDescuento(precioDescuento);
+                product.setDiscount(dis);
+                productRepo.save(product);
             }
         }
-        dis.setActive(false);
+    }
+
+    if (dis.getProduct() != null) {
+        for (Product product : discountRepo.findProductsByDiscountIds(discountId)) {
+            double precioDescuento = product.getPrecio() * (1 - dis.getPercentage());
+            precioDescuento = Math.round(precioDescuento * 100.0) / 100.0;
+            product.setPrecioDescuento(precioDescuento);
+            product.setDiscount(dis);
+            productRepo.save(product);
+        }
+    }
+}
+
         discountRepo.save(dis);
         return dis;
     }
 
     public DiscountDTO cargarDiscountDTO(Discount discount) {
         DiscountDTO discountDTO = new DiscountDTO();
+        discountDTO.setId(discount.getId());
         discountDTO.setPercentage(discount.getPercentage() * 100);
         discountDTO.setStartDate(discount.getStartDate());
         discountDTO.setEndDate(discount.getEndDate());
+        discountDTO.setActive(discount.getActive());
         return discountDTO;
     }
 }

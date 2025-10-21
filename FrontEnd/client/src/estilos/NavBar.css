@@ -1,3 +1,14 @@
+:root {
+  --primary: #7b2ff7;
+  --primary-hover: #6622cc;
+  --card: #ffffff;
+  --border: #e0e0e6;
+  --radius: 16px;
+  --text-muted: #666;
+  --text-dark: #444;
+  --button-text: #dcd2ec;
+  font-family: 'Space Grotesk', sans-serif;
+}
 .navbar {
   position: fixed;
   top: 0;
