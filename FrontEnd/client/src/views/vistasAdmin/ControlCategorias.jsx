@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import CategoryRow from "../../components/controlAdmin/CategoryRow";
 import CategoryForm from "../../components/controlAdmin/CategoryForm";
+import Swal from "sweetalert2";
 
 const ControlCategoria = () => {
   const [categories, setCategories] = useState([]);
@@ -23,17 +24,42 @@ const ControlCategoria = () => {
     setShowForm(true);
   };
   
-  const handleDelete = (id) => {
-    fetch(`http://localhost:4002/categories/${id}`, {
+  
+
+const handleDelete = async (id) => {
+  const confirm = await Swal.fire({
+    title: "¿Eliminar categoría?",
+    text: "Esta acción no se puede deshacer.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "Cancelar",
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  try {
+    const res = await fetch(`http://localhost:4002/categories/${id}`, {
       method: "DELETE",
       headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-      }
-    })
-      .then(() => fetchCategories())
-      .catch((err) => console.error("Error al eliminar categoría:", err));
-  };
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`Error ${res.status}: ${errorText}`);
+    }
+
+    Swal.fire("Eliminada", "La categoría fue eliminada correctamente.", "success");
+    fetchCategories();
+  } catch (err) {
+    Swal.fire("Error", "No se pudo eliminar la categoría. Porque tiene productos asociados", "error");
+    console.error("Error al eliminar categoría:", err);
+  }
+};
+
   
   return (
     <div className="panel-layout-container">
