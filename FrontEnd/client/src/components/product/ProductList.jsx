@@ -1,29 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, } from "react";
+import {useDispatch, useSelector} from 'react-redux'
 import ProductComponent from "./ProductComponent";
 import "../../estilos/Product.css";
+import { fetchProducts } from "../../redux/productSlice";
 
-const ProductList = ({filtrosAplicar, busqueda, sale}) => {
-  
-  const [products, setProduct] = useState([]);
-  const Url = "http://localhost:4002/products";
 
-  useEffect(() => {
-    fetch(Url) // mapeamos el endpoint de los productos
-      .then((response) => response.json())
-      .then((data) => {
-        setProduct(data)
-      })
-      .catch((error) => {
-        console.error("Error al obtener los datos: ", error.message);
-      });
-  }, []);
+const ProductList = ({sale}) => {
+
+const dispatch = useDispatch()
+const {items, filtrosAplicar, busqueda} = useSelector((state) => state.products)
+
+useEffect(()=>{
+  dispatch(fetchProducts())
+}, [dispatch])
+
 
   const aplicarFiltros = () => {
-    if (!filtrosAplicar) return products; //si no hay filtros, devuelve todos los productos
+
+    if (filtrosAplicar === null) return items; //si no hay filtros en el estado global, devuelve todos los productos
 
     const { categoria, precioMin, precioMax } = filtrosAplicar; // desestructuramos los filtros
 
-    return products.filter((p) => {
+    return items.filter((p) => {
       const precioAFiltrar = p.priceDescuento > 0 ? p.priceDescuento : p.price;// si hay precio descuento tomamos ese, si no el normal
 
       const cumpleCategoria = !categoria || categoria === "Todas" || p.categoryName === categoria; // vemos si cumple los requisitos para que de true y que el filter se quede con el producto
@@ -36,7 +34,7 @@ const ProductList = ({filtrosAplicar, busqueda, sale}) => {
   const productosMostrar = aplicarFiltros().filter( // aplicamos logica de busqueda y agarramos solo los activos y con stock 
     (p) => p.active && p.stock > 0 
     && (sale ? p.priceDescuento > 0 : true) // se muestran los que tienen precio descuento o todos (dependiendo si el prop sale viene true o false)
-    && (!busqueda || // si no hay busqueda, muestra todo (rompia si no)
+    && (busqueda === "" || // si no hay busqueda, muestra todo (rompia si no)
    p.name.toLowerCase().includes(busqueda.toLowerCase()) || p.description.toLowerCase().includes(busqueda.toLowerCase())));
 
   return (

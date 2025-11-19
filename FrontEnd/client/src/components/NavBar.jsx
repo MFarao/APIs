@@ -4,11 +4,15 @@ import "../estilos/Navbar.css";
 import flechaIzq from "../assets/flechaIzq.png";
 import logo from "../assets/logo.png";
 import Swal from 'sweetalert2';
+import { setBusqueda } from "../redux/productSlice";
+import {useDispatch, useSelector} from 'react-redux'
 
-const Navbar = ({capturarBusqueda}) => {
+const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+
+  const dispatch = useDispatch()
 
   // Cargar usuario desde localStorage al montar y cuando cambie el token
   useEffect(() => {
@@ -109,7 +113,7 @@ const Navbar = ({capturarBusqueda}) => {
 
       {mostrarBusqueda && (
         <form className="navbar-search" onSubmit={(e) => e.preventDefault()}>
-          <input type="text" placeholder="Buscar..." className="search-input" onChange={(e) => capturarBusqueda(e.target.value)}/>
+          <input type="text" placeholder="Buscar..." className="search-input" onChange={(e) => dispatch(setBusqueda(e.target.value))}/> {/* on change mandamos lo del iinput al estado global para ser usado por product list o sale */}
         </form>
       )}
 

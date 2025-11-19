@@ -28,21 +28,17 @@ import ControlUsuarios from "./views/vistasAdmin/ControlUsuarios.jsx";
 import { useState } from "react";
 
 function App() {
-  const [busqueda, setBusqueda] = useState(null); // Estado para almacenar los resultados de búsqueda
-  const capturarBusqueda = (resultado) => {
-        setBusqueda(resultado); // Actualiza el estado con los nuevos resultados de búsqueda
-    }
   return (
     <>
-      <Navbar capturarBusqueda={capturarBusqueda}/>
+      <Navbar />
       <Routes>
         {/*Públicas */}
         <Route path="/" element={<Home />} />
         <Route path="/inicio" element={<Inicio />} />
         <Route path="/registro" element={<Registro />} />
 
-        <Route path="/productos"  className="productos-container"element={<Productos busqueda={busqueda} />}/>  {/*pasamos lo buscado a productos para que lo redirija*/}
-        <Route path="/sale" element={<Sale busqueda={busqueda} />} />
+        <Route path="/productos"  className="productos-container"element={<Productos />}/>  
+        <Route path="/sale" element={<Sale  />} />
         <Route path="/productos/:id" element={<DetalleProducto />} />
         <Route path="/checkout/:id" element={<Checkout />} />
         <Route path="/configuracion" element={<ConfiguracionUsuario />} />

@@ -2,28 +2,26 @@ import React, { useState, useEffect } from "react";
 import "../../estilos/FiltroProducto.css";
 import logo from "../../assets/logo.png";
 import Swal from "sweetalert2";
+import { setFiltrosAplicar } from "../../redux/productSlice";
+import { fetchCategories } from "../../redux/categoriesSlice";
+import {useDispatch, useSelector} from 'react-redux'
 
-const FiltroProducto = ({onFiltro}) => {
-  const [categorias, setCategorias] = useState([]);
+
+const FiltroProducto = () => {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todas"); // inicializamos todas como filtro automatico
   const [precioMin, setPrecioMin] = useState("");
   const [precioMax, setPrecioMax] = useState("");
 
-  useEffect(() => {
-    fetch("http://localhost:4002/categories")
-      .then((response) => response.json())
-      .then((data) => {
-        setCategorias(["Todas", ...data.map((cat) => cat.description)]); // hacemos el fetch de las categorias del Back para rendizaxrlos
-      })
-      .catch((err) => {
-        console.error("Error al cargar categorías:", err.message);
-        setCategorias(["Todas"]);
-      });
-  }, []);
+const dispatch = useDispatch()
+const {items} = useSelector((state) => state.categories);
+
+  useEffect(()=>{
+  dispatch(fetchCategories())
+}, [dispatch])
 
   const filtroApasar = () => { 
 
-    Swal.fire({ // consultamos si quiere aplicar los filtros y si quiere mandamos el onfiltro al padre
+    Swal.fire({ // consultamos si quiere aplicar los filtros y si quiere lo despachamos al estado global
       title: "¿Aplicar filtros?",
       text: "Se filtrarán los productos según categoría y precio.",
       icon: "question",
@@ -34,16 +32,16 @@ const FiltroProducto = ({onFiltro}) => {
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        onFiltro({
+        dispatch(setFiltrosAplicar({ // despachamos los filtros al estado global con lo que esta en el state en ese momento
           categoria: categoriaSeleccionada,
           precioMin: precioMin ? Number(precioMin) : null,
           precioMax: precioMax ? Number(precioMax) : null,
-        });
+        }));
       }
     });
   };
 
-
+const categorias = ["Todas", ...items.map((cat) => cat.description)]; // creamos categroias unicamente con sus descripciones para la visualizacion
   
   return (
     <div className="filtro-producto">
