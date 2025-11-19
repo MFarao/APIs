@@ -2,12 +2,15 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import "../../estilos/Auth.css";
 import Swal from "sweetalert2";
+import {useDispatch, useSelector} from 'react-redux'
+import { authenticateUser } from "../../redux/userSlice";
 
 const Inicio = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
+  const {error} = useSelector((state) => state.user);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,65 +18,36 @@ const Inicio = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
-    try {
-      // Autenticación
-      const res = await fetch("http://localhost:4002/api/v1/auth/authenticate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      }); // recibimos el token
-
-      if (!res.ok) throw new Error("Correo o contraseña incorrectos");
-
-      const data = await res.json();
-      const token = data.access_token || data.token || data.tokenJwt || data.tokenJwt; // soporta variantes
-      if (!token) throw new Error("No se recibió token del servidor");
-
-      localStorage.setItem("token", token);
-
-      // agarramos el perfil del usuario con el token
-      const perfilRes = await fetch("http://localhost:4002/users/me", {
-        headers: { Authorization: `Bearer ${token}` },
+    // Autenticación
+    const resultAction = await dispatch(authenticateUser(formData)); // recibimos el token
+    const { user } = resultAction.payload;
+    if(user.role === "BLOQUEADO"){ // si el usuario tiene rol bloqueado no inicia sesion
+      Swal.fire({
+        title: "Acceso denegado",
+        text: "Tu cuenta está bloqueada. Contactá al administrador.",
+        icon: "error",
+        confirmButtonText: "Entendido",
       });
+      return;}
 
-      if (!perfilRes.ok) throw new Error("No se pudo obtener el perfil del usuario");
+    else{ // si el usuario no esta bloqueado lo manda a la ultima ruta en la q estuvo
 
+      localStorage.setItem("user", JSON.stringify(user)); // lo guardamos en el local
+      const ultimaRuta = localStorage.getItem("ultimaRuta");
 
-      const user = await perfilRes.json();
-      console.log(user.role)
-      if(user.role === "BLOQUEADO"){ // si el usuario tiene rol bloqueado no inicia sesion
-
-        Swal.fire({
-          title: "Acceso denegado",
-          text: "Tu cuenta está bloqueada. Contactá al administrador.",
-          icon: "error",
-          confirmButtonText: "Entendido",
-        });
-        return;
-
-      }else{ // si el usuario no esta bloqueado lo manda a la ultima ruta en la q estuvo
-
-        localStorage.setItem("user", JSON.stringify(user)); // lo guardamos en el local
-        const ultimaRuta = localStorage.getItem("ultimaRuta");
-
-        if(!ultimaRuta){ // chequeamos si vino del boton de detallePedido (el cual captura la ultimaruta en el LocalStorage)
-        // si vino de /registro lo mandamos a /productos, si vino de otra ruta, regresar ahí, si no /productos
-          const destino =
-          location.state?.from === "/registro"
-            ? "/productos"
-            : location.state?.from || "/productos";
-            navigate(destino);
-        }else{
-          const destino = ultimaRuta
+      if(!ultimaRuta){ // chequeamos si vino del boton de detallePedido (el cual captura la ultimaruta en el LocalStorage)
+      // si vino de /registro lo mandamos a /productos, si vino de otra ruta, regresar ahí, si no /productos
+        const destino =
+        location.state?.from === "/registro"
+          ? "/productos"
+          : location.state?.from || "/productos";
           navigate(destino);
-          localStorage.removeItem("ultimaRuta"); //limpiamos el LocalStorage para evitar redirecciones indeseadas
-        }
+      }else{
+        const destino = ultimaRuta
+        navigate(destino);
+        localStorage.removeItem("ultimaRuta"); //limpiamos el LocalStorage para evitar redirecciones indeseadas
       }
-      
-    } catch (err) {
-      setError(err.message || "Error al iniciar sesión");
     }
   };
 
