@@ -6,7 +6,7 @@ const USERS_URL = "http://localhost:4002/users"
 
 export const authenticateUser = createAsyncThunk(
   "auth/authenticateUser", 
-  async (formData, {rejectWithValue}) => {
+  async (formData, {rejectWithValue}) => { // pedimos el bearer al back con los datos y luego pedimos los datos del usuario con ese token
     try{
       const response = await axios.post(`${AUTH_URL}/authenticate`, formData);
       
@@ -17,7 +17,7 @@ export const authenticateUser = createAsyncThunk(
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      return {token, user: responseUser.data};
+      return {token: token, userEnSesion: responseUser.data};
     }
     catch (err){
       return rejectWithValue(err.message || "Correo o contraseña incorrectos");
@@ -25,11 +25,32 @@ export const authenticateUser = createAsyncThunk(
   }
 );
 
+export const registerUser = createAsyncThunk(
+  "auth/registerUser",
+  async (formData, {rejectWithValue}) => {
+    try {
+      const response = await axios.post(`${AUTH_URL}/register`, formData); // registramos el usaurio
+
+      const token = response.data.access_token || response.data.token || response.data.tokenJwt; // agarramos el token para agarrarlo
+      if (!token) return rejectWithValue("No se recibió token del servidor");
+
+      //Necesitamos el idUsuario
+      const responseUser = await axios.get(`${USERS_URL}/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      return {token: token, userEnSesion: responseUser.data};
+
+    }catch (err) {
+      return rejectWithValue(err.message || "Correo o contraseña incorrectos");
+    }
+})
+
 const userSlice = createSlice({
   name: "user",
   initialState: {
     token: null,
-    user: null,
+    userEnSesion: null,
     users: [],
     loading: false,
     error: null,
@@ -37,7 +58,7 @@ const userSlice = createSlice({
   reducers: {
     logout: (state) => {
       state.token = null;
-      state.user = null;
+      state.userEnSesion = null;
       state.error = null;
     }
   },
@@ -48,8 +69,8 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(authenticateUser.fulfilled, (state, action) => {
-        state.token = action.payload.token;
-        state.user = action.payload.user;
+        state.token = action.payload.token; // cargamos los datos del usuario en estado global
+        state.userEnSesion = action.payload.userEnSesion;
       })
       .addCase(authenticateUser.rejected, (state, action) => {
         state.error = action.payload || "Error en la autenticación";

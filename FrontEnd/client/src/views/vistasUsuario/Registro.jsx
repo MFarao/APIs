@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import "../../estilos/Auth.css";
+import {useDispatch, useSelector} from 'react-redux';
+import { registerUser } from "../../redux/userSlice";
 
 const Registro = () => {
   const [formData, setFormData] = useState({
@@ -8,9 +10,10 @@ const Registro = () => {
     apellido: "",
     email: "",
     password: "",
+    role: "USER"
   });
-  const [error, setError] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,57 +21,8 @@ const Registro = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-
-    try {
-      // 1) Crear el usuario
-      const res = await fetch("http://localhost:4002/api/v1/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firstname: formData.nombre,
-          lastname: formData.apellido,
-          email: formData.email,
-          password: formData.password,
-          role: "USER",
-        }),
-      });
-
-      if (!res.ok) {
-        const text = await res.text().catch(() => null);
-        throw new Error(text || "No se pudo registrar el usuario");
-      }
-
-      // 2) Auto-login (usar mismo endpoint que en Inicio)
-      const loginRes = await fetch("http://localhost:4002/api/v1/auth/authenticate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formData.email, password: formData.password }),
-      });
-
-      if (!loginRes.ok) throw new Error("Error al iniciar sesión automáticamente");
-
-      const loginData = await loginRes.json();
-      const token = loginData.access_token || loginData.token;
-      if (!token) throw new Error("No se recibió token tras el registro");
-
-      localStorage.setItem("token", token);
-
-      // 3) Obtener perfil
-      const perfilRes = await fetch("http://localhost:4002/users/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!perfilRes.ok) throw new Error("No se pudo obtener el perfil del usuario");
-
-      const user = await perfilRes.json();
-      localStorage.setItem("user", JSON.stringify(user));
-
-      // Redirigir a inicio
-      navigate("/inicio");
-    } catch (err) {
-      setError(err.message || "Error en el registro");
-    }
+    dispatch(registerUser(formData)); // despachamos el registro con la data
+    navigate("/inicio"); // lo mandamos a inicio para que haga el login
   };
 
   return (

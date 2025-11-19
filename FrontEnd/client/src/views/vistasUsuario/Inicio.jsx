@@ -1,8 +1,8 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../../estilos/Auth.css";
 import Swal from "sweetalert2";
-import {useDispatch, useSelector} from 'react-redux'
+import {useDispatch, useSelector} from 'react-redux';
 import { authenticateUser } from "../../redux/userSlice";
 
 const Inicio = () => {
@@ -10,46 +10,38 @@ const Inicio = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const {error} = useSelector((state) => state.user);
+  const {userEnSesion, error} = useSelector((state) => state.user);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = (e) => {
+  e.preventDefault();
+  dispatch(authenticateUser(formData)); // despachamos el login con la data
+};
 
-    // Autenticación
-    const resultAction = await dispatch(authenticateUser(formData)); // recibimos el token
-    const { user } = resultAction.payload;
-    if(user.role === "BLOQUEADO"){ // si el usuario tiene rol bloqueado no inicia sesion
+useEffect(() => { // cuando detecta algun cambio en el userensesion se ejecuta
+  if (userEnSesion) { // como es secuencial debemos asegurarnos que primero se despache para seguir
+    if (userEnSesion.role === "BLOQUEADO") {
       Swal.fire({
         title: "Acceso denegado",
         text: "Tu cuenta está bloqueada. Contactá al administrador.",
         icon: "error",
         confirmButtonText: "Entendido",
       });
-      return;}
-
-    else{ // si el usuario no esta bloqueado lo manda a la ultima ruta en la q estuvo
-
-      localStorage.setItem("user", JSON.stringify(user)); // lo guardamos en el local
-      const ultimaRuta = localStorage.getItem("ultimaRuta");
-
-      if(!ultimaRuta){ // chequeamos si vino del boton de detallePedido (el cual captura la ultimaruta en el LocalStorage)
-      // si vino de /registro lo mandamos a /productos, si vino de otra ruta, regresar ahí, si no /productos
-        const destino =
-        location.state?.from === "/registro"
-          ? "/productos"
-          : location.state?.from || "/productos";
-          navigate(destino);
-      }else{
-        const destino = ultimaRuta
-        navigate(destino);
-        localStorage.removeItem("ultimaRuta"); //limpiamos el LocalStorage para evitar redirecciones indeseadas
-      }
+      return;
     }
-  };
+
+    const ultimaRuta = localStorage.getItem("ultimaRuta");
+    const destino =
+      ultimaRuta || 
+      (location.state?.from === "/registro" ? "/productos" : location.state?.from || "/productos");
+
+    navigate(destino);
+    localStorage.removeItem("ultimaRuta");
+  }
+}, [userEnSesion, navigate, location]);
 
   return (
     <div className="auth-container">

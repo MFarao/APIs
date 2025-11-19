@@ -5,33 +5,19 @@ import flechaIzq from "../assets/flechaIzq.png";
 import logo from "../assets/logo.png";
 import Swal from 'sweetalert2';
 import { setBusqueda } from "../redux/productSlice";
-import {useDispatch, useSelector} from 'react-redux'
+import { logout } from "../redux/userSlice";
+
+import {useDispatch, useSelector} from 'react-redux';
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const {userEnSesion, error} = useSelector((state) => state.user);
 
   const dispatch = useDispatch()
 
-  // Cargar usuario desde localStorage al montar y cuando cambie el token
-  useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) {
-      try {
-        setUser(JSON.parse(stored));
-      } catch {
-        setUser(null);
-      }
-    } else {
-      setUser(null);
-    }
-  }, [localStorage.getItem("token")]);
-
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setUser(null);
+    dispatch(logout()); // hacemos el logout seteando el estado global de user en sesion a null
     navigate("/");
   };
 
@@ -90,7 +76,7 @@ const Navbar = () => {
         >
           Productos
         </Link>
-        {user?.role === "USER" && (
+        {userEnSesion?.role === "USER" && (
           <Link
             to="/misordenes"
             className={`nav-link ${location.pathname === "/misordenes" ? "active" : ""}`}
@@ -101,7 +87,7 @@ const Navbar = () => {
         <Link to="/sale" className={`nav-link ${location.pathname === "/sale" ? "active" : ""}`}>
           Sale
         </Link>
-        {user?.role === "ADMIN" && (
+        {userEnSesion?.role === "ADMIN" && (
           <Link
             to="/panelControl/productos"
             className={`nav-link ${location.pathname === "/panelControl" ? "active" : ""}`}
@@ -118,10 +104,10 @@ const Navbar = () => {
       )}
 
       <div className="navbar-auth">
-        {user ? (
+        {userEnSesion ? (
           <>
             {/* uso firstname porque en el backend usabas firstname/lastname */}
-            <Link to="/configuracion" className="navbar-user">Hola, {user.firstname || user.nombre || user.name} !!</Link>
+            <Link to="/configuracion" className="navbar-user">Hola, {userEnSesion.firstname || userEnSesion.nombre || userEnSesion.name} !!</Link>
             <button onClick={confirmarLogout} className="logout-btn">
               Cerrar sesión
             </button>
