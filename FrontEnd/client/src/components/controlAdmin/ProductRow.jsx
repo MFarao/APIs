@@ -1,16 +1,22 @@
 import React from "react";
+import { useDispatch } from "react-redux";
+import { in_activateProduct } from "../../redux/productSlice";
 
-const ProductRow = ({ producto, onEditar, onActualizado }) => {
-  const toggleActivo = async () => {
+
+const ProductRow = ({ producto, onEditar }) => {
+  const dispatch = useDispatch();
+
+  const handleToggleActivo = async () => {
     try {
-      await fetch(`http://localhost:4002/products/${producto.id}/in_activar`, {
-        method: "PUT",
-      });
-      onActualizado();
+      const result = await dispatch(toggleProductActivo(producto.id));
+      if (result.type.includes("rejected")) {
+        console.error("Error al activar/inactivar:", result.payload);
+      }
     } catch (err) {
-      console.error("Error al activar/inactivar", err);
+      console.error("Error inesperado:", err);
     }
   };
+
 
   return (
     <tr>
@@ -38,7 +44,7 @@ const ProductRow = ({ producto, onEditar, onActualizado }) => {
       </td>
       <td>
         <button className="button edit" onClick={() => onEditar(producto)}>Editar</button>
-        <button className="button delete" onClick={toggleActivo}>
+        <button className="button delete" onClick={handleToggleActivo}>
           {producto.active ? "🚫" : "✅"}
         </button>
       </td>

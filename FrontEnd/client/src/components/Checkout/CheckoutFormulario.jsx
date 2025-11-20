@@ -1,7 +1,7 @@
 import React from "react";
 import mercadoPagoLogo from "../../assets/mercadoPago.png";
 
-const CheckoutFormulario = ({ envio, handleChange, conectado, setConectado }) => (
+const CheckoutFormulario = ({ handleChange, conectado, setConectado }) => (
   <div className="checkout-summary">
     <div className="checkout-subtotal">
       <p>Rellene sus datos:</p>

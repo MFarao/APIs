@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
+import { createProduct, updateProduct } from "../../redux/productSlice";
 
 const ProductForm = ({ product, onClose, onRefresh }) => {
+  const dispatch = useDispatch();
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -13,21 +17,11 @@ const ProductForm = ({ product, onClose, onRefresh }) => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
-    if (type === "number") {
-      if (value > 0) {
-        setFormData((prev) => ({
-          ...prev,
-          [name]: value,
-        }));
-      }
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: type === "checkbox" ? checked : value,
-      }));
-    }
+    const parsedValue = type === "checkbox" ? checked : value;
+    if (type === "number" && value <= 0) return;
+    setFormData((prev) => ({ ...prev, [name]: parsedValue }));
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,11 +39,6 @@ const ProductForm = ({ product, onClose, onRefresh }) => {
 
     if (!confirmacion.isConfirmed) return;
 
-    const method = product ? "PUT" : "POST";
-    const url = product
-      ? `http://localhost:4002/products/${product.id}`
-      : "http://localhost:4002/products";
-
     const body = {
       name: formData.name,
       description: formData.description,
@@ -58,32 +47,25 @@ const ProductForm = ({ product, onClose, onRefresh }) => {
       stock: formData.stock,
     };
 
-    try {
-      if (formData.imageUrls) {
-        if (typeof formData.imageUrls === "string") {
-          body.imageUrls = formData.imageUrls
-            .split(",")
-            .map((url) => url.trim())
-            .filter((url) => url !== "");
-        } else if (Array.isArray(formData.imageUrls)) {
-          body.imageUrls = formData.imageUrls.filter((url) => typeof url === "string");
-        }
+    if (formData.imageUrls) {
+      if (typeof formData.imageUrls === "string") {
+        body.imageUrls = formData.imageUrls
+          .split(",")
+          .map((url) => url.trim())
+          .filter((url) => url !== "");
+      } else if (Array.isArray(formData.imageUrls)) {
+        body.imageUrls = formData.imageUrls.filter((url) => typeof url === "string");
       }
-    } catch (err) {
-      console.error("Error al procesar las imágenes:", err);
     }
 
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(body),
-      });
 
-      if (!response.ok) throw new Error("Error al guardar producto");
+    try {
+      const result = product
+        ? await dispatch(updateProduct({ body, idProducto: product.id }))
+        : await dispatch(createProduct(body));
+
+      if (result.type.includes("rejected")) throw new Error(result.payload);
+
 
       Swal.fire({
         title: "Producto cargado ✅",
@@ -96,7 +78,7 @@ const ProductForm = ({ product, onClose, onRefresh }) => {
     } catch (err) {
       Swal.fire({
         title: "Error",
-        text: "No se pudo cargar el producto.",
+        text: err.message || "No se pudo cargar el producto.",
         icon: "error",
       });
       console.error("Error al guardar producto:", err);
