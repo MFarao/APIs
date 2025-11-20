@@ -42,31 +42,9 @@ export const registerUser = createAsyncThunk(
       return {token: token, userEnSesion: responseUser.data};
 
     }catch (err) {
-      return rejectWithValue(err.message || "No se pudo registrar el usuario");
+      return rejectWithValue(err.message || "Correo o contraseña incorrectos");
     }
 })
-
-export const updateUser = createAsyncThunk(
-  "auth/updateUser",
-  async (body, { getState, rejectWithValue }) => { // inyecyamos get state para poder acceder al token
-    try {
-      const state = getState();
-      const token = state.user.token; // sacamos el token del estado global
-      const idUser = getState().user.userEnSesion.id;
-
-      const response = await axios.put(`${USERS_URL}/${body.idUser}`, body, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }); //  hacemos un PUT con los datos y el token
-
-      return response.data;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "No se pudo actualizar el usuario");
-    }
-  }
-);
 
 const userSlice = createSlice({
   name: "user",
@@ -96,14 +74,7 @@ const userSlice = createSlice({
       })
       .addCase(authenticateUser.rejected, (state, action) => {
         state.error = action.payload || "Error en la autenticación";
-      })
-      .addCase(registerUser.fulfilled, (state, action) => {
-        state.token = action.payload.token;
-        state.userEnSesion = action.payload;
-      })
-      .addCase(registerUser.rejected, (state, action) => {
-        state.error = action.payload || "Error en el registro";
-      })
+      });
   },
 });
 

@@ -2,9 +2,6 @@ import React, { useState } from "react";
 import "../../estilos/ConfiguracionUsuario.css";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../../redux/userSlice";
-import { updateUser } from "../../redux/userSlice";
 
 const ConfiguracionUsuario = () => {
     const [datos, setDatos] = useState({
@@ -14,15 +11,16 @@ const ConfiguracionUsuario = () => {
         password: ""
     });
     const navigate = useNavigate();
-    const {userEnSesion} = useSelector((state) => state.user);
-    const dispatch = useDispatch();
+
+    const user = JSON.parse(localStorage.getItem("user"))
 
     const handleChange = (e) => {
         setDatos({ ...datos, [e.target.name]: e.target.value });
     };
 
     const handleLogout = () => {
-        dispatch(logout()); // hacemos el logout seteando el estado global de user en sesion a null
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
         navigate("/");
     };
 
@@ -49,13 +47,25 @@ const ConfiguracionUsuario = () => {
         });
         }else{
             try {
-                const body = { idUser: userEnSesion.id };// creamos el body con el id y dependiendo q haya lo agregamos
+                const user = JSON.parse(localStorage.getItem("user"))// agarramos el usuario en sesion
+
+                const body = { idUser: user.id };
 
                 if (datos.email) body.email = datos.email;
                 if (datos.firstname) body.firstname = datos.firstname;
                 if (datos.lastname) body.lastname = datos.lastname;
                 if (datos.password) body.password = datos.password;
-                dispatch(updateUser(body)) // despachamos las modificaciones
+        
+            const response = await fetch(`http://localhost:4002/users/${user.id}`, { 
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                    body: JSON.stringify(body),
+                    });
+        
+                if (!response.ok) throw new Error("Error al crear la orden");
                 Swal.fire({
                     title: 'Cambios guardados ✅',
                     text: 'Sus cambios se procesaron correctamente.',
@@ -81,27 +91,27 @@ const ConfiguracionUsuario = () => {
         <div className="account-container">
             <h1 className="account-title">Configuracion de Usuario</h1>
             <div className="account-tabs">
-                <p className="tab active">Cuenta resgistrada como {`${userEnSesion.role}`}</p>
+                <p className="tab active">Cuenta resgistrada como {`${user.role}`}</p>
             </div>
 
         <form className="account-form" onSubmit={actualizarDatos}>
             <div className="form-group">
             <label>Nombre</label>
-            <input name="firstname" value={datos.firstname} className= "text" placeholder={`${userEnSesion.firstname}`}
+            <input name="firstname" value={datos.firstname} className= "text" placeholder={`${user.firstname}`}
                 onChange={handleChange}
             />
             </div>
 
             <div className="form-group">
             <label>Apellido</label>
-            <input name="lastname" value={datos.lastname} className= "text" placeholder={`${userEnSesion.lastname}`}
+            <input name="lastname" value={datos.lastname} className= "text" placeholder={`${user.lastname}`}
                 onChange={handleChange}
             />
             </div>
 
             <div className="form-group">
             <label>Correo Electronico</label>
-            <input name="email" className= "text" value={datos.email} placeholder={`${userEnSesion.email}`}
+            <input name="email" className= "text" value={datos.email} placeholder={`${user.email}`}
                 onChange={handleChange}
             />
             </div>

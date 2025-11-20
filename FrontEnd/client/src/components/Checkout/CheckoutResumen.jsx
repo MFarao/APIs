@@ -1,15 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
 
-const CheckoutResumen = ({ conectado, envio, createOrder }) => {
-  const {total} = useSelector((state) => state.cart);
-
-  return (
+const CheckoutResumen = ({ p, cantidad, conectado, envio, createOrder }) => (
   <div className="checkout-summary">
     <div className="checkout-subtotal">
       <p>Subtotal:</p>
-      {total}
+      {p.priceDescuento && p.discountEndDate ? ( // dependiendo si tiene o no descuento mostramos el resultado final de la compra
+        <p className="precio-descuento">${p.priceDescuento.toFixed(2) * cantidad}</p>
+      ) : (
+        <p className="precio-descuento">${p.price.toFixed(2) * cantidad}</p>
+      )}
     </div>
     <div className="footer">
       <p className="checkout-note">Impuestos (IVA 21%) y envio incluido.</p>
@@ -24,7 +24,6 @@ const CheckoutResumen = ({ conectado, envio, createOrder }) => {
       </div>
     </div>
   </div>
-  )
-};
+);
 
 export default CheckoutResumen;
