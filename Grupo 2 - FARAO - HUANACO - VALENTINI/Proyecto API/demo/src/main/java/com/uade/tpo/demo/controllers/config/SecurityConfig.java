@@ -11,10 +11,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.web.cors.CorsConfiguration;
 
 import com.uade.tpo.demo.entity.Role;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
+
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,9 +32,17 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
-                                .cors() // 👈 habilita CORS
-                                .and()
                                 .csrf(AbstractHttpConfigurer::disable)
+
+                                // ⭐ CORS configurado directamente en Security
+                                .cors(cors -> cors.configurationSource(request -> {
+                                CorsConfiguration config = new CorsConfiguration();
+                                config.setAllowedOrigins(List.of("https://5w2kzjqw-5173.brs.devtunnels.ms")); 
+                                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                                config.setAllowedHeaders(List.of("*"));
+                                config.setAllowCredentials(true);
+                                return config;
+                                }))
                                 .authorizeHttpRequests(req -> req
                                 .requestMatchers(HttpMethod.POST, "/categories").hasAuthority(Role.ADMIN.name())// SOLO LOS ADMINS CREARAN LAS CATEGORIAS
                                 .requestMatchers(HttpMethod.DELETE, "/categories/**").hasAuthority(Role.ADMIN.name())// SOLO LOS ADMINS ELIMINARAN LAS CATEGORIAS
