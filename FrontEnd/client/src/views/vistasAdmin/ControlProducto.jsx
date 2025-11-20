@@ -1,38 +1,36 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import ProductForm from "../../components/controlAdmin/ProductForm";
 import ProductRow from "../../components/controlAdmin/ProductRow";
+import { fetchProducts, in_activateProduct } from "../../redux/productSlice";
 
 const ControlProducto = () => {
-  const [products, setProducts] = useState([]);
+  const dispatch = useDispatch();
+  const { items: products, loading, error } = useSelector((state) => state.products);
+
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
-  const fetchProducts = () => {
-    fetch("http://localhost:4002/products")
-      .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .catch((err) => console.error("Error al cargar productos:", err));
-  };
-
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   const handleEdit = (product) => {
     setSelectedProduct(product);
     setShowForm(true);
   };
 
-  const handleIn_Activar = (id) => {
-    fetch(`http://localhost:4002/products/${id}/in_activar`, {
-      method: "PUT",
-      headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-      }
-    })
-      .then(() => fetchProducts())
-      .catch((err) => console.error("Error al eliminar productos:", err));
+  const handleToggleActivo = async (id) => {
+    try {
+      await dispatch(in_activateProduct(id)).unwrap();
+    } catch (err) {
+      console.error("Error al activar/inactivar:", err);
+    }
+  };
+
+
+  const handleRefresh = () => { 
+    dispatch(fetchProducts());
   };
   
   return (
@@ -49,9 +47,12 @@ const ControlProducto = () => {
         <ProductForm
           product={selectedProduct}
           onClose={() => setShowForm(false)}
-          onRefresh={fetchProducts}
+          onRefresh={handleRefresh}
         />
       )}
+
+      {loading && <p>Cargando productos...</p>}
+      {error && <p className="error">{error}</p>}
 
       <table className="panel-layout-table">
         <thead>
@@ -73,7 +74,7 @@ const ControlProducto = () => {
               key={pro.id}
               producto={pro}
               onEditar={() => handleEdit(pro)}
-              onActualizado={() => handleIn_Activar(pro.id)}
+              onToggleActivo={() => handleToggleActivo(pro.id)}
             />
           ))}
         </tbody>

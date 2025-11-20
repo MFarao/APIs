@@ -25,8 +25,6 @@ const Checkout = () => {
 
   // definimos las funciones de escribir la direccion y cambiar el contador
   const handleChange = (e) => setEnvio(e.target.value)
-  const handleDecrease = () => { if (cantidad > 1) setCantidad(cantidad - 1); } // el restarle stock minimo tiene que ser uno y actualizamos cantidad para pasarsela a Resumen
-  const handleIncrease = () => { if (cantidad < p.stock) setCantidad(cantidad + 1); } // el sumarle stock maximo menor al stock y actualizamos cantidad para pasarsela a Resumen
 
   const createOrder = async () => { // hacemo el creaar de la orden con el produco almacenado en state
     try {
@@ -72,9 +70,9 @@ const Checkout = () => {
     // a chekoutFormulario le pasamos el handle change para que el padre reciba lo que el hijo escribe ahi, tambien dejamos que maneje el estado del padre pasando conectado y setconectado
     // a resumen le mandamos el producto para que acceda al precio y calcule el total, junto con la cantidad, a donde se envia y la posiblidad de crear la orden
     <main className="checkout-page">
-      <CheckoutProducto p={p} cantidad={cantidad} handleDecrease={handleDecrease} handleIncrease={handleIncrease} />
+      <CheckoutProducto p={p} cantidad={cantidad}/>
       <CheckoutFormulario envio={envio} handleChange={handleChange} conectado={conectado} setConectado={setConectado} />
-      <CheckoutResumen p={p} cantidad={cantidad} conectado={conectado} envio={envio} createOrder={createOrder} />
+      <CheckoutResumen conectado={conectado} envio={envio} createOrder={createOrder} />
     </main>
   );
 };

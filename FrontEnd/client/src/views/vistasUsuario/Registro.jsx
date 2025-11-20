@@ -6,14 +6,15 @@ import { registerUser } from "../../redux/userSlice";
 
 const Registro = () => {
   const [formData, setFormData] = useState({
-    nombre: "",
-    apellido: "",
+    firstname: "",
+    lastname: "",
     email: "",
     password: "",
     role: "USER"
   });
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const {error} = useSelector((state) => state.user);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,8 +22,12 @@ const Registro = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(registerUser(formData)); // despachamos el registro con la data
-    navigate("/inicio"); // lo mandamos a inicio para que haga el login
+    dispatch(registerUser(formData)).then((action) =>{
+      if (action.type === "auth/registerUser/rejected") return; // si hubo un error no hacemos nada
+        navigate("/inicio"); // lo mandamos a inicio para que haga el login
+
+    })
+
   };
 
   return (
@@ -32,8 +37,8 @@ const Registro = () => {
         <label>Nombre</label>
         <input
           type="text"
-          name="nombre"
-          value={formData.nombre}
+          name="firstname"
+          value={formData.firstname}
           onChange={handleChange}
           required
         />
@@ -41,8 +46,8 @@ const Registro = () => {
         <label>Apellido</label>
         <input
           type="text"
-          name="apellido"
-          value={formData.apellido}
+          name="lastname"
+          value={formData.lastname}
           onChange={handleChange}
           required
         />

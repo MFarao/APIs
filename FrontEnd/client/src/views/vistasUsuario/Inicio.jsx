@@ -4,6 +4,7 @@ import "../../estilos/Auth.css";
 import Swal from "sweetalert2";
 import {useDispatch, useSelector} from 'react-redux';
 import { authenticateUser } from "../../redux/userSlice";
+import { setUltimaRuta } from "../../redux/uiSlice";
 
 const Inicio = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -11,6 +12,7 @@ const Inicio = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const {userEnSesion, error} = useSelector((state) => state.user);
+  const {ultimaRuta} = useSelector((state) => state.UIs);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,13 +35,11 @@ useEffect(() => { // cuando detecta algun cambio en el userensesion se ejecuta
       return;
     }
 
-    const ultimaRuta = localStorage.getItem("ultimaRuta");
-    const destino =
-      ultimaRuta || 
+    const destino = ultimaRuta || 
       (location.state?.from === "/registro" ? "/productos" : location.state?.from || "/productos");
 
     navigate(destino);
-    localStorage.removeItem("ultimaRuta");
+    dispatch(setUltimaRuta(null)); // limpiamos la ultima ruta guardada
   }
 }, [userEnSesion, navigate, location]);
 

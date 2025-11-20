@@ -1,14 +1,19 @@
 import React from "react";
+import { useDispatch } from "react-redux";
+import { sumarCarrito, sacarCarrito } from "../../redux/cartSlice";
 
-const CheckoutProducto = ({ p, cantidad, handleDecrease, handleIncrease }) => ( // se encarga de renderizar el componente que contiene el producto a comprar
+const CheckoutProducto = ({ p, cantidad }) => { // se encarga de renderizar el componente que contiene el producto a comprar
+  const dispatch = useDispatch();
+
+  return(
   <div className="checkout-card-horizontal">
     <img src={p.imageUrls?.[0] || "/placeholder.png"} alt={p.name} className="checkout-img" />
     <div className="checkout-info">
       <h2 className="checkout-name">{p.name}</h2>
       <div className="quantity-selector">
-        <button className="qty-btn" onClick={handleDecrease}>−</button>
+        <button className="qty-btn" onClick={dispatch(sumarCarrito(p))}>−</button>
         <span className="qty-value">{cantidad}</span>
-        <button className="qty-btn" onClick={handleIncrease}>+</button>
+        <button className="qty-btn" onClick={dispatch(sacarCarrito(p))}>+</button>
       </div>
       <div className="checkout-stock">
         {p.stock > 0 ? (
@@ -30,6 +35,6 @@ const CheckoutProducto = ({ p, cantidad, handleDecrease, handleIncrease }) => ( 
       </div>
     </div>
   </div>
-); //
+)};
 
 export default CheckoutProducto;

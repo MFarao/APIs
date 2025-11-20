@@ -1,42 +1,31 @@
 import React, { useEffect, useState } from "react";
 import "../../estilos/Ordenes.css";
-
+import { useDispatch, useSelector } from "react-redux";
+import { fetchOrdersUsuario, setFiltrosAplicar } from "../../redux/orderSlice";
 
 const Ordenes = () => {
-  const [ordenes, setOrdenes] = useState([]);
-  const [error, setError] = useState("");
-  const [filtroEstado, setFiltroEstado] = useState("TODOS"); // estado para los Estados de las ordenes (lo usamos como filtro)
+  const dispatch = useDispatch();
+  const { orders, error, filtrosAplicar, loading } = useSelector((state) => state.order);
+  const { userEnSesion, token } = useSelector((state) => state.user);
 
-  const token = localStorage.getItem("token");
+  const [filtroEstado, setFiltroEstado] = useState("TODOS");
 
   useEffect(() => {
-    const fetchOrdenes = async () => {
-      try {
-        const user = JSON.parse(localStorage.getItem("user"));
-        const userId = user?.id;
+    if (userEnSesion?.id && token) {
+      dispatch(fetchOrdersUsuario(userEnSesion.id));
+    }
+  }, [dispatch, userEnSesion, token]);
 
-        const res = await fetch(`http://localhost:4002/order/user/${userId}`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-        });
+  useEffect(() => {
+    dispatch(setFiltrosAplicar({ estado: filtroEstado }));
+  }, [filtroEstado, dispatch]);
 
-        if (!res.ok) throw new Error("No se pudieron cargar las órdenes");
+  const ordenesFiltradas = orders.filter((orden) => {
+    const coincideEstado =
+      filtrosAplicar?.estado === "TODOS" || orden.status === filtrosAplicar?.estado;
+    return coincideEstado;
+  });
 
-        const data = await res.json();
-
-        setOrdenes(data);
-      } catch (err) {
-        setError(err.message);
-      }
-    };
-
-    fetchOrdenes();
-  }, [token]);
-
-  const ordenesFiltradas = ordenes.filter((orden) => // filtramos las ordenes por estado, todas o las que tienen cierto estado asociado
-    filtroEstado === "TODOS" ? true : orden.status === filtroEstado
-  );
 
   return (
      <div className="ordenes-container">
