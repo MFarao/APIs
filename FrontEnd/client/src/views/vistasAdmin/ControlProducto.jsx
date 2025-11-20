@@ -28,7 +28,6 @@ const ControlProducto = () => {
     }
   };
 
-
   const handleRefresh = () => { 
     dispatch(fetchProducts());
   };
